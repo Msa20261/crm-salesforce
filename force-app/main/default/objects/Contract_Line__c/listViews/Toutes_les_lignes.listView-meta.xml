@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Toutes_les_lignes</fullName>
+    <columns>NAME</columns>
+    <columns>Contract__c</columns>
+    <columns>Produit__c</columns>
+    <columns>Prix_Unitaire__c</columns>
+    <columns>Quantite__c</columns>
+    <columns>Montant__c</columns>
+    <columns>Type_Ligne__c</columns>
+    <filterScope>Everything</filterScope>
+    <label>Toutes les lignes de contrat</label>
+    <language>fr</language>
+</ListView>
