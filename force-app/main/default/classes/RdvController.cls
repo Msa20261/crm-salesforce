@@ -28,7 +28,7 @@ public with sharing class RdvController {
         insert ev;
 
         try {
-            envoyerEmails(assigneA, leadId, sujet, Date.valueOf(dateEcheance));
+            envoyerEmails(assigneA, leadId, sujet, Date.valueOf(dateEcheance), UserInfo.getUserId());
         } catch (Exception e) {
             System.debug('Envoi email échoué : ' + e.getMessage());
         }
@@ -48,23 +48,36 @@ public with sharing class RdvController {
         ];
     }
 
-    // Envoie un email à l'utilisateur assigné et à la piste
-    private static void envoyerEmails(Id userId, Id leadId, String sujet, Date dateRdv) {
+    // Envoie un email à l'utilisateur assigné, au créateur du RDV et à la piste
+    private static void envoyerEmails(Id assigneId, Id leadId, String sujet, Date dateRdv, Id createurId) {
         List<Messaging.SingleEmailMessage> emails = new List<Messaging.SingleEmailMessage>();
         String dateFormatee = dateRdv.format();
         String sujetEmail   = 'RDV planifié : ' + sujet + ' — ' + dateFormatee;
 
-        // Email à l'utilisateur assigné
-        if (userId != null) {
-            User u = [SELECT Name, Email FROM User WHERE Id = :userId LIMIT 1];
-            if (u.Email != null) {
+        // Collecte les IDs des utilisateurs internes à notifier (assigné + créateur, sans doublons)
+        Set<Id> userIds = new Set<Id>();
+        if (assigneId != null) userIds.add(assigneId);
+        if (createurId != null) userIds.add(createurId);
+
+        if (!userIds.isEmpty()) {
+            List<User> users = [SELECT Id, Name, Email FROM User WHERE Id IN :userIds AND IsActive = true];
+            for (User u : users) {
+                if (u.Email == null) continue;
+                Boolean estAssigne = (u.Id == assigneId);
+                Boolean estCreateur = (u.Id == createurId);
+                String intro = estAssigne && !estCreateur
+                    ? 'Un rendez-vous vous a été assigné dans le CRM Upmind Ludwig.'
+                    : estCreateur && !estAssigne
+                        ? 'Vous avez créé un rendez-vous dans le CRM Upmind Ludwig.'
+                        : 'Vous avez créé et êtes assigné à ce rendez-vous dans le CRM Upmind Ludwig.';
+
                 Messaging.SingleEmailMessage emailUser = new Messaging.SingleEmailMessage();
                 emailUser.setSenderDisplayName('CRM Upmind Ludwig');
                 emailUser.setToAddresses(new List<String>{ u.Email });
                 emailUser.setSubject(sujetEmail);
                 emailUser.setPlainTextBody(
                     'Bonjour ' + u.Name + ',\n\n' +
-                    'Un rendez-vous vous a été assigné dans le CRM Upmind Ludwig.\n\n' +
+                    intro + '\n\n' +
                     'Sujet  : ' + sujet + '\n' +
                     'Date   : ' + dateFormatee + '\n\n' +
                     'Connectez-vous sur Salesforce pour voir les détails.\n\n' +
