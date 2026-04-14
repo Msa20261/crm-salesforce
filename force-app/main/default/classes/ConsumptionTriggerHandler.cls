@@ -30,10 +30,13 @@ public with sharing class ConsumptionTriggerHandler {
         Map<Id, String> contractLineToAccountOwnerName  = new Map<Id, String>();
         Map<Id, Id>     contractLineToAccountId         = new Map<Id, Id>();
 
+        // Map contract line → Set d'User IDs pour les notifications cloche
+        Map<Id, Set<Id>> contractLineToUserIds = new Map<Id, Set<Id>>();
+
         for (Contract_Line__c cl : [
-            SELECT Id, Contract__r.Owner.Email, Contract__r.Owner.Name, Contract__r.Name,
+            SELECT Id, Contract__r.OwnerId, Contract__r.Owner.Email, Contract__r.Owner.Name, Contract__r.Name,
                    Contract__r.AccountId,
-                   Contract__r.Account.Owner.Email, Contract__r.Account.Owner.Name
+                   Contract__r.Account.OwnerId, Contract__r.Account.Owner.Email, Contract__r.Account.Owner.Name
             FROM Contract_Line__c
             WHERE Id IN :contractLineIds
         ]) {
@@ -47,6 +50,11 @@ public with sharing class ConsumptionTriggerHandler {
                 contractLineToAccountOwnerEmail.put(cl.Id, cl.Contract__r.Account.Owner.Email);
                 contractLineToAccountOwnerName.put(cl.Id, cl.Contract__r.Account.Owner.Name);
             }
+            // Collecte les User IDs pour les notifications cloche
+            Set<Id> uids = new Set<Id>();
+            if (cl.Contract__r.OwnerId != null)         uids.add(cl.Contract__r.OwnerId);
+            if (cl.Contract__r.Account.OwnerId != null)  uids.add(cl.Contract__r.Account.OwnerId);
+            contractLineToUserIds.put(cl.Id, uids);
         }
 
         // Récupère les contacts (avec email) associés aux comptes
@@ -168,10 +176,42 @@ public with sharing class ConsumptionTriggerHandler {
 
         if (!alertesACreer.isEmpty()) {
             insert alertesACreer;
+            envoyerNotifications(alertesACreer, contractLineToUserIds);
         }
 
         if (!emailsAEnvoyer.isEmpty()) {
             envoyerEmails(emailsAEnvoyer, ownerNames);
+        }
+    }
+
+    private static void envoyerNotifications(List<Alert__c> alertes, Map<Id, Set<Id>> contractLineToUserIds) {
+        try {
+            List<CustomNotificationType> types = [SELECT Id FROM CustomNotificationType WHERE DeveloperName = 'Alerte_Consommation' LIMIT 1];
+            if (types.isEmpty()) return;
+            String notifTypeId = types[0].Id;
+
+            for (Alert__c a : alertes) {
+                Set<Id> userIds = contractLineToUserIds.get(a.Contract_Line__c);
+                if (userIds == null || userIds.isEmpty()) continue;
+
+                Set<String> recipientIds = new Set<String>();
+                for (Id uid : userIds) recipientIds.add(String.valueOf(uid));
+
+                String titre = a.Type_Alerte__c == 'Surfacturation'
+                    ? 'Surfacturation détectée'
+                    : a.Type_Alerte__c == 'Provision_Depassee'
+                        ? 'Solde insuffisant'
+                        : 'Consommation anormale';
+
+                Messaging.CustomNotification notif = new Messaging.CustomNotification();
+                notif.setNotificationTypeId(notifTypeId);
+                notif.setTitle(titre);
+                notif.setBody(a.Message__c);
+                notif.setTargetId(a.Id);
+                notif.send(recipientIds);
+            }
+        } catch (Exception e) {
+            System.debug('Envoi notification cloche échoué : ' + e.getMessage());
         }
     }
 
