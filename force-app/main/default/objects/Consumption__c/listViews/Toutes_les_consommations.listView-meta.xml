@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Toutes_les_consommations</fullName>
+    <columns>NAME</columns>
+    <columns>Contract_Line__c</columns>
+    <columns>Periode_Debut__c</columns>
+    <columns>Periode_Fin__c</columns>
+    <columns>Montant_Achete__c</columns>
+    <columns>Montant_Consomme__c</columns>
+    <columns>Montant_Restant__c</columns>
+    <columns>Source__c</columns>
+    <filterScope>Everything</filterScope>
+    <label>Toutes les consommations</label>
+    <language>fr</language>
+</ListView>

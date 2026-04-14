@@ -14,6 +14,9 @@
     <tabs>standard-Opportunity</tabs>
     <tabs>standard-Contract</tabs>
     <tabs>Contract_Line__c</tabs>
+    <tabs>Consumption__c</tabs>
+    <tabs>Invoice__c</tabs>
+    <tabs>Alert__c</tabs>
     <tabs>Compte_Rendu_RDV__c</tabs>
     <tabs>standard-Report</tabs>
     <tabs>standard-Dashboard</tabs>
