@@ -22,28 +22,53 @@ public with sharing class ConsumptionTriggerHandler {
             alertesExistantes.put(a.Contract_Line__c + '_' + a.Type_Alerte__c, true);
         }
 
-        // Récupère le propriétaire du contrat via Contract_Line__c → Contract__c → Owner
-        Map<Id, String> contractLineToOwnerEmail = new Map<Id, String>();
-        Map<Id, String> contractLineToOwnerName  = new Map<Id, String>();
-        Map<Id, String> contractLineToContractName = new Map<Id, String>();
-        // Récupère le propriétaire du compte associé au contrat
+        // Récupère contrat, propriétaire contrat, propriétaire compte et AccountId
+        Map<Id, String> contractLineToOwnerEmail    = new Map<Id, String>();
+        Map<Id, String> contractLineToOwnerName     = new Map<Id, String>();
+        Map<Id, String> contractLineToContractName  = new Map<Id, String>();
         Map<Id, String> contractLineToAccountOwnerEmail = new Map<Id, String>();
         Map<Id, String> contractLineToAccountOwnerName  = new Map<Id, String>();
-        Map<Id, String> contractLineToAccountName       = new Map<Id, String>();
+        Map<Id, Id>     contractLineToAccountId         = new Map<Id, Id>();
+
         for (Contract_Line__c cl : [
             SELECT Id, Contract__r.Owner.Email, Contract__r.Owner.Name, Contract__r.Name,
-                   Contract__r.Account.Owner.Email, Contract__r.Account.Owner.Name, Contract__r.Account.Name
+                   Contract__r.AccountId,
+                   Contract__r.Account.Owner.Email, Contract__r.Account.Owner.Name
             FROM Contract_Line__c
             WHERE Id IN :contractLineIds
         ]) {
             contractLineToOwnerEmail.put(cl.Id, cl.Contract__r.Owner.Email);
             contractLineToOwnerName.put(cl.Id, cl.Contract__r.Owner.Name);
             contractLineToContractName.put(cl.Id, cl.Contract__r.Name);
-            // Propriétaire du compte associé au contrat
+            if (cl.Contract__r.AccountId != null) {
+                contractLineToAccountId.put(cl.Id, cl.Contract__r.AccountId);
+            }
             if (cl.Contract__r.Account.Owner.Email != null) {
                 contractLineToAccountOwnerEmail.put(cl.Id, cl.Contract__r.Account.Owner.Email);
                 contractLineToAccountOwnerName.put(cl.Id, cl.Contract__r.Account.Owner.Name);
-                contractLineToAccountName.put(cl.Id, cl.Contract__r.Account.Name);
+            }
+        }
+
+        // Récupère les contacts (avec email) associés aux comptes
+        Set<Id> accountIds = new Set<Id>(contractLineToAccountId.values());
+        Map<Id, List<Contact>> accountToContacts = new Map<Id, List<Contact>>();
+        for (Contact ct : [
+            SELECT Id, FirstName, LastName, Email, AccountId
+            FROM Contact
+            WHERE AccountId IN :accountIds AND Email != null
+        ]) {
+            if (!accountToContacts.containsKey(ct.AccountId)) {
+                accountToContacts.put(ct.AccountId, new List<Contact>());
+            }
+            accountToContacts.get(ct.AccountId).add(ct);
+        }
+
+        // Construit la map Contract_Line → liste de contacts
+        Map<Id, List<Contact>> contractLineToContacts = new Map<Id, List<Contact>>();
+        for (Id clId : contractLineToAccountId.keySet()) {
+            Id accId = contractLineToAccountId.get(clId);
+            if (accountToContacts.containsKey(accId)) {
+                contractLineToContacts.put(clId, accountToContacts.get(accId));
             }
         }
 
@@ -64,11 +89,14 @@ public with sharing class ConsumptionTriggerHandler {
             Decimal restant  = c.Montant_Restant__c  != null ? c.Montant_Restant__c  : achete - consomme;
             Decimal moyenne  = c.Consommation_Moyenne__c != null ? c.Consommation_Moyenne__c : 0;
 
-            String ownerEmail       = contractLineToOwnerEmail.get(c.Contract_Line__c);
-            String ownerName        = contractLineToOwnerName.get(c.Contract_Line__c);
-            String contractName     = contractLineToContractName.get(c.Contract_Line__c);
+            String ownerEmail        = contractLineToOwnerEmail.get(c.Contract_Line__c);
+            String ownerName         = contractLineToOwnerName.get(c.Contract_Line__c);
+            String contractName      = contractLineToContractName.get(c.Contract_Line__c);
             String accountOwnerEmail = contractLineToAccountOwnerEmail.get(c.Contract_Line__c);
             String accountOwnerName  = contractLineToAccountOwnerName.get(c.Contract_Line__c);
+            List<Contact> contacts   = contractLineToContacts.containsKey(c.Contract_Line__c)
+                                       ? contractLineToContacts.get(c.Contract_Line__c)
+                                       : new List<Contact>();
 
             // --- Condition 1 : Surfacturation (Consommé > Acheté) ---
             if (consomme > achete && achete >= 0) {
@@ -88,6 +116,7 @@ public with sharing class ConsumptionTriggerHandler {
                     ajouterEmail(emailsAEnvoyer, ownerNames, ownerEmail, ownerName, '[SURFACTURATION] ' + contractName + ' — ' + msg);
                     ajouterEmail(emailsAEnvoyer, ownerNames, createurEmail, createurName, '[SURFACTURATION] ' + contractName + ' — ' + msg);
                     ajouterEmail(emailsAEnvoyer, ownerNames, accountOwnerEmail, accountOwnerName, '[SURFACTURATION] ' + contractName + ' — ' + msg);
+                    for (Contact ct : contacts) ajouterEmail(emailsAEnvoyer, ownerNames, ct.Email, (ct.FirstName != null ? ct.FirstName + ' ' : '') + ct.LastName, '[SURFACTURATION] ' + contractName + ' — ' + msg);
                 }
             }
 
@@ -109,6 +138,7 @@ public with sharing class ConsumptionTriggerHandler {
                     ajouterEmail(emailsAEnvoyer, ownerNames, ownerEmail, ownerName, '[PROVISION DÉPASSÉE] ' + contractName + ' — ' + msg);
                     ajouterEmail(emailsAEnvoyer, ownerNames, createurEmail, createurName, '[PROVISION DÉPASSÉE] ' + contractName + ' — ' + msg);
                     ajouterEmail(emailsAEnvoyer, ownerNames, accountOwnerEmail, accountOwnerName, '[PROVISION DÉPASSÉE] ' + contractName + ' — ' + msg);
+                    for (Contact ct : contacts) ajouterEmail(emailsAEnvoyer, ownerNames, ct.Email, (ct.FirstName != null ? ct.FirstName + ' ' : '') + ct.LastName, '[PROVISION DÉPASSÉE] ' + contractName + ' — ' + msg);
                 }
             }
 
@@ -131,6 +161,7 @@ public with sharing class ConsumptionTriggerHandler {
                     ajouterEmail(emailsAEnvoyer, ownerNames, ownerEmail, ownerName, '[CONSOMMATION ANORMALE] ' + contractName + ' — ' + msg);
                     ajouterEmail(emailsAEnvoyer, ownerNames, createurEmail, createurName, '[CONSOMMATION ANORMALE] ' + contractName + ' — ' + msg);
                     ajouterEmail(emailsAEnvoyer, ownerNames, accountOwnerEmail, accountOwnerName, '[CONSOMMATION ANORMALE] ' + contractName + ' — ' + msg);
+                    for (Contact ct : contacts) ajouterEmail(emailsAEnvoyer, ownerNames, ct.Email, (ct.FirstName != null ? ct.FirstName + ' ' : '') + ct.LastName, '[CONSOMMATION ANORMALE] ' + contractName + ' — ' + msg);
                 }
             }
         }
