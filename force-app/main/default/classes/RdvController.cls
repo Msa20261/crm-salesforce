@@ -54,6 +54,14 @@ public with sharing class RdvController {
         String dateFormatee = dateRdv.format();
         String sujetEmail   = 'RDV planifié : ' + sujet + ' — ' + dateFormatee;
 
+        // Adresse expéditeur vérifiée dans l'org (priorité upmind.fr, sinon première disponible)
+        List<OrgWideEmailAddress> oweaList = [SELECT Id, Address FROM OrgWideEmailAddress WHERE IsAllowAllProfiles = true ORDER BY Address LIMIT 5];
+        Id oweaId = null;
+        for (OrgWideEmailAddress o : oweaList) {
+            if (o.Address.contains('upmind.fr')) { oweaId = o.Id; break; }
+        }
+        if (oweaId == null && !oweaList.isEmpty()) oweaId = oweaList[0].Id;
+
         // Collecte les IDs des utilisateurs internes à notifier (assigné + créateur, sans doublons)
         Set<Id> userIds = new Set<Id>();
         if (assigneId != null) userIds.add(assigneId);
@@ -72,7 +80,7 @@ public with sharing class RdvController {
                         : 'Vous avez créé et êtes assigné à ce rendez-vous dans le CRM Upmind Ludwig.';
 
                 Messaging.SingleEmailMessage emailUser = new Messaging.SingleEmailMessage();
-                emailUser.setSenderDisplayName('CRM Upmind Ludwig');
+                if (oweaId != null) emailUser.setOrgWideEmailAddressId(oweaId);
                 emailUser.setToAddresses(new List<String>{ u.Email });
                 emailUser.setSubject(sujetEmail);
                 emailUser.setPlainTextBody(
@@ -91,7 +99,7 @@ public with sharing class RdvController {
         Lead l = [SELECT FirstName, LastName, Email FROM Lead WHERE Id = :leadId LIMIT 1];
         if (l.Email != null) {
             Messaging.SingleEmailMessage emailLead = new Messaging.SingleEmailMessage();
-            emailLead.setSenderDisplayName('CRM Upmind Ludwig');
+            if (oweaId != null) emailLead.setOrgWideEmailAddressId(oweaId);
             emailLead.setToAddresses(new List<String>{ l.Email });
             emailLead.setSubject('Confirmation de rendez-vous — ' + sujet);
             emailLead.setPlainTextBody(
