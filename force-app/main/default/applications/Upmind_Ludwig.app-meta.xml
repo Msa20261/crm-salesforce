@@ -13,6 +13,8 @@
     <tabs>standard-Contact</tabs>
     <tabs>standard-Opportunity</tabs>
     <tabs>standard-Contract</tabs>
+    <tabs>Contract_Line__c</tabs>
+    <tabs>Compte_Rendu_RDV__c</tabs>
     <tabs>standard-Report</tabs>
     <tabs>standard-Dashboard</tabs>
     <uiType>Lightning</uiType>
