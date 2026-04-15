@@ -1,0 +1,108 @@
+<template>
+    <div class="summary-wrapper">
+
+        <!-- HEADER -->
+        <div class="panel-header">
+            <div class="header-left">
+                <div class="header-icon">
+                    <lightning-icon icon-name="standard:contract" size="small"></lightning-icon>
+                </div>
+                <div>
+                    <h2 class="panel-title">Récapitulatif Contrat</h2>
+                    <p class="panel-sub">{contractNumber}</p>
+                </div>
+            </div>
+            <span class={statusClass}>{contractStatus}</span>
+        </div>
+
+        <template if:true={isLoading}>
+            <div class="loading-wrap">
+                <lightning-spinner alternative-text="Chargement" size="small"></lightning-spinner>
+            </div>
+        </template>
+
+        <template if:false={isLoading}>
+            <template if:true={hasData}>
+
+                <!-- KPI GRID -->
+                <div class="kpi-grid">
+                    <div class="kpi-tile kpi-blue">
+                        <lightning-icon icon-name="standard:contract_line_item" size="small"></lightning-icon>
+                        <span class="kpi-num">{nbLignes}</span>
+                        <span class="kpi-txt">Lignes de contrat</span>
+                    </div>
+                    <div class="kpi-tile kpi-green">
+                        <lightning-icon icon-name="utility:metrics" size="small"></lightning-icon>
+                        <span class="kpi-num">{totalConsoFmt}</span>
+                        <span class="kpi-txt">Consommé</span>
+                    </div>
+                    <div class="kpi-tile kpi-orange">
+                        <lightning-icon icon-name="utility:warning" size="small"></lightning-icon>
+                        <span class="kpi-num">{nbAlertes}</span>
+                        <span class="kpi-txt">Alertes ouvertes</span>
+                    </div>
+                    <div class="kpi-tile kpi-purple">
+                        <lightning-icon icon-name="standard:invoice" size="small"></lightning-icon>
+                        <span class="kpi-num">{nbFactures}</span>
+                        <span class="kpi-txt">Factures</span>
+                    </div>
+                </div>
+
+                <!-- TAUX DE CONSOMMATION -->
+                <div class="conso-section">
+                    <div class="conso-header">
+                        <span class="conso-title">Taux de consommation global</span>
+                        <span class={pctClass}>{pctConso}%</span>
+                    </div>
+                    <div class="conso-bar-bg">
+                        <div class="conso-bar-fill" style={consoBarStyle}></div>
+                    </div>
+                    <div class="conso-footer">
+                        <span>{totalConsoFmt} consommé</span>
+                        <span>{totalAcheteFmt} budgété</span>
+                    </div>
+                </div>
+
+                <!-- DÉTAILS FINANCIERS -->
+                <div class="details-grid">
+                    <div class="detail-row">
+                        <span class="detail-lbl">Montant abonnement</span>
+                        <span class="detail-val">{montantAbonnement}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-lbl">Montant token estimé</span>
+                        <span class="detail-val">{montantToken}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-lbl">Frais de gestion</span>
+                        <span class="detail-val">{fraisGestion}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-lbl">Type de facturation</span>
+                        <span class="detail-val">{typeFacturation}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-lbl">Montant total factures</span>
+                        <span class="detail-val">{montantFactures}</span>
+                    </div>
+                    <template if:true={hasTokenDates}>
+                        <div class="detail-row">
+                            <span class="detail-lbl">Période token</span>
+                            <span class="detail-val">{periodeToken}</span>
+                        </div>
+                    </template>
+                </div>
+
+                <!-- ALERTES BADGE -->
+                <template if:true={hasAlertes}>
+                    <div class="alert-banner">
+                        <lightning-icon icon-name="utility:warning" size="x-small"></lightning-icon>
+                        <span>{nbAlertes} alerte(s) ouverte(s) sur ce contrat — vérifiez les lignes.</span>
+                    </div>
+                </template>
+
+            </template>
+        </template>
+
+    </div>
+</template>

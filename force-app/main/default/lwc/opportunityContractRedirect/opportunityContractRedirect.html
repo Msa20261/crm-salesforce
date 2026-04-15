@@ -1,0 +1,9 @@
+<template>
+    <!-- Composant invisible — agit uniquement en fond -->
+    <template if:true={showToast}>
+        <div class="notif-banner">
+            <lightning-icon icon-name="utility:success" size="x-small"></lightning-icon>
+            <span>Contrat <strong>{contractNumber}</strong> créé — ouverture en cours...</span>
+        </div>
+    </template>
+</template>

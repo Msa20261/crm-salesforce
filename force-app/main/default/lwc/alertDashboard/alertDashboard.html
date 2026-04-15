@@ -1,0 +1,89 @@
+<template>
+    <div class="alert-wrapper">
+
+        <!-- HEADER -->
+        <div class="panel-header">
+            <div class="header-left">
+                <div class="header-icon">
+                    <lightning-icon icon-name="utility:warning" size="small"></lightning-icon>
+                </div>
+                <h2 class="panel-title">Alertes</h2>
+                <template if:true={hasAlertes}>
+                    <span class="badge-count">{alertes.length}</span>
+                </template>
+            </div>
+            <div class="header-filters">
+                <button class={btnTousClass}     onclick={filtrerTous}     >Toutes</button>
+                <button class={btnNouvelleClass} onclick={filtrerNouvelle} >Nouvelles</button>
+                <button class={btnVueClass}      onclick={filtrerVue}      >Vues</button>
+                <button class={btnResolueClass}  onclick={filtrerResolue}  >Résolues</button>
+            </div>
+        </div>
+
+        <!-- LOADING -->
+        <template if:true={isLoading}>
+            <div class="loading-wrap">
+                <lightning-spinner alternative-text="Chargement" size="small"></lightning-spinner>
+            </div>
+        </template>
+
+        <!-- ERREUR -->
+        <template if:true={erreur}>
+            <div class="error-state">
+                <lightning-icon icon-name="utility:error" size="small"></lightning-icon>
+                <span>Impossible de charger les alertes.</span>
+            </div>
+        </template>
+
+        <!-- LISTE -->
+        <template if:false={isLoading}>
+            <template if:true={alertesFiltrees.length}>
+                <ul class="alert-list">
+                    <template for:each={alertesFiltrees} for:item="alerte">
+                        <li key={alerte.Id} class={alerte.cssCard}>
+                            <div class="alert-top">
+                                <div class="alert-meta">
+                                    <span class={alerte.cssType}>{alerte.Type_Alerte__c}</span>
+                                    <span class={alerte.cssStatut}>{alerte.Statut__c}</span>
+                                </div>
+                                <span class="alert-date">{alerte.dateFormatee}</span>
+                            </div>
+                            <p class="alert-message">{alerte.Message__c}</p>
+                            <template if:true={alerte.Seuil_Depasse__c}>
+                                <div class="seuil-bar-wrap">
+                                    <div class="seuil-bar-bg">
+                                        <div class="seuil-bar-fill" style={alerte.seuilStyle}></div>
+                                    </div>
+                                    <span class="seuil-pct">{alerte.Seuil_Depasse__c}%</span>
+                                </div>
+                            </template>
+                            <div class="alert-actions">
+                                <template if:true={alerte.isNouvelle}>
+                                    <button class="btn-action btn-vue"     data-id={alerte.Id} onclick={marquerVue}>
+                                        <lightning-icon icon-name="utility:preview" size="xx-small"></lightning-icon> Marquer vue
+                                    </button>
+                                    <button class="btn-action btn-resoudre" data-id={alerte.Id} onclick={resoudre}>
+                                        <lightning-icon icon-name="utility:check" size="xx-small"></lightning-icon> Résoudre
+                                    </button>
+                                </template>
+                                <template if:true={alerte.isVue}>
+                                    <button class="btn-action btn-resoudre" data-id={alerte.Id} onclick={resoudre}>
+                                        <lightning-icon icon-name="utility:check" size="xx-small"></lightning-icon> Résoudre
+                                    </button>
+                                </template>
+                            </div>
+                        </li>
+                    </template>
+                </ul>
+            </template>
+            <template if:false={alertesFiltrees.length}>
+                <div class="vide-state">
+                    <lightning-icon icon-name="utility:check" size="medium"></lightning-icon>
+                    <p class="vide-titre">Aucune alerte</p>
+                    <p class="vide-sub">Tout est sous contrôle pour cette ligne de contrat.</p>
+                </div>
+            </template>
+        </template>
+
+    </div>
+</template>

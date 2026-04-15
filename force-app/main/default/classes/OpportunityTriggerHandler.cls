@@ -1,6 +1,9 @@
 public class OpportunityTriggerHandler {
 
+    private static Boolean isRunning = false;
+
     public static void handleAfterUpdate(List<Opportunity> newOpps, Map<Id, Opportunity> oldMap) {
+        if (isRunning) return;
 
         // Sélectionner uniquement les Opportunités qui passent en Closed Won
         List<Opportunity> closedWonOpps = new List<Opportunity>();
@@ -52,6 +55,22 @@ public class OpportunityTriggerHandler {
         Map<Id, Id> oppVersContrat = new Map<Id, Id>();
         for (Integer i = 0; i < opps.size(); i++) {
             oppVersContrat.put(opps[i].Id, contrats[i].Id);
+        }
+
+        // Stamper ContractId (standard) + Contrat_Associe__c (custom) sur chaque Opportunité
+        List<Opportunity> oppsToUpdate = new List<Opportunity>();
+        for (Integer i = 0; i < opps.size(); i++) {
+            oppsToUpdate.add(new Opportunity(
+                Id                 = opps[i].Id,
+                ContractId         = contrats[i].Id,
+                Contrat_Associe__c = contrats[i].Id
+            ));
+        }
+        isRunning = true;
+        try {
+            update oppsToUpdate;
+        } finally {
+            isRunning = false;
         }
 
         // Créer les Lignes de Contrat — snapshot figé des produits

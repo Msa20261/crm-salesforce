@@ -3,161 +3,161 @@
 
         <!-- HERO -->
         <div class="hero-section">
+            <div class="hero-bg-circle hero-circle-1"></div>
+            <div class="hero-bg-circle hero-circle-2"></div>
             <div class="hero-content">
-                <div class="avatar">
-                    <lightning-icon icon-name="standard:user" size="large"></lightning-icon>
+                <div class="avatar-wrapper">
+                    <div class="avatar">
+                        <lightning-icon icon-name="standard:user" size="large"></lightning-icon>
+                    </div>
+                    <div class="avatar-ring"></div>
                 </div>
                 <div class="hero-text">
-                    <p class="bonjour-label">Bonjour,</p>
-                    <h1 class="nom-utilisateur">{nomUtilisateur} 👋</h1>
-                    <p class="sous-titre">Bienvenue sur votre espace commercial <strong>Upmind Ludwig</strong>.<br/>
-                        Gérez votre pipeline de A à Z depuis une seule plateforme.</p>
+                    <p class="bonjour-label">{salutation}</p>
+                    <h1 class="nom-utilisateur">{nomUtilisateur}</h1>
+                    <p class="sous-titre">{messageDuJour}</p>
+                    <div class="hero-quote">
+                        <span class="quote-icon">"</span>
+                        <span class="quote-text">{citationDuJour}</span>
+                        <span class="quote-icon">"</span>
+                    </div>
                 </div>
             </div>
-            <div class="date-badge">
-                <lightning-icon icon-name="utility:date_input" size="x-small"></lightning-icon>
-                &nbsp;{dateAujourdhui}
+            <div class="hero-right">
+                <div class="date-badge">
+                    <lightning-icon icon-name="utility:date_input" size="x-small"></lightning-icon>
+                    <span>{dateAujourdhui}</span>
+                </div>
+                <div class="hero-tagline">Bonne journée ! 🚀</div>
             </div>
         </div>
 
         <!-- KPI -->
         <div class="kpi-container">
             <div class="kpi-card kpi-lead">
-                <lightning-icon icon-name="standard:lead" size="medium"></lightning-icon>
+                <div class="kpi-icon-wrap kpi-icon-lead">
+                    <lightning-icon icon-name="standard:lead" size="small"></lightning-icon>
+                </div>
                 <div class="kpi-info">
                     <span class="kpi-valeur">{kpi.leads}</span>
                     <span class="kpi-label">Leads ce mois</span>
                 </div>
+                <div class="kpi-sparkline kpi-sparkline-lead"></div>
             </div>
             <div class="kpi-card kpi-opp">
-                <lightning-icon icon-name="standard:opportunity" size="medium"></lightning-icon>
+                <div class="kpi-icon-wrap kpi-icon-opp">
+                    <lightning-icon icon-name="standard:opportunity" size="small"></lightning-icon>
+                </div>
                 <div class="kpi-info">
                     <span class="kpi-valeur">{kpi.opportunites}</span>
                     <span class="kpi-label">Opportunités ouvertes</span>
                 </div>
+                <div class="kpi-sparkline kpi-sparkline-opp"></div>
             </div>
             <div class="kpi-card kpi-contrat">
-                <lightning-icon icon-name="standard:contract" size="medium"></lightning-icon>
+                <div class="kpi-icon-wrap kpi-icon-contrat">
+                    <lightning-icon icon-name="standard:contract" size="small"></lightning-icon>
+                </div>
                 <div class="kpi-info">
                     <span class="kpi-valeur">{kpi.contrats}</span>
                     <span class="kpi-label">Contrats actifs</span>
                 </div>
+                <div class="kpi-sparkline kpi-sparkline-contrat"></div>
             </div>
             <div class="kpi-card kpi-tache">
-                <lightning-icon icon-name="standard:task" size="medium"></lightning-icon>
+                <div class="kpi-icon-wrap kpi-icon-tache">
+                    <lightning-icon icon-name="standard:task" size="small"></lightning-icon>
+                </div>
                 <div class="kpi-info">
                     <span class="kpi-valeur">{kpi.taches}</span>
                     <span class="kpi-label">Tâches du jour</span>
                 </div>
+                <div class="kpi-sparkline kpi-sparkline-tache"></div>
             </div>
         </div>
 
         <!-- CARTES MODULES -->
+        <div class="section-label">Modules</div>
         <div class="cartes-container">
             <div class="carte carte-lead" onclick={naviguerLeads}>
-                <div class="carte-icon"><lightning-icon icon-name="standard:lead" size="large"></lightning-icon></div>
-                <div class="carte-body">
-                    <h2 class="carte-titre">Prospection</h2>
-                    <p class="carte-desc">Gérez et suivez vos leads commerciaux</p>
+                <div class="carte-icon-wrap carte-icon-lead">
+                    <lightning-icon icon-name="standard:lead" size="medium"></lightning-icon>
                 </div>
-                <div class="carte-arrow"><lightning-icon icon-name="utility:chevronright" size="small"></lightning-icon></div>
+                <div class="carte-body">
+                    <h2 class="carte-titre">Leads</h2>
+                    <p class="carte-desc">Gérez et suivez vos pistes commerciales</p>
+                </div>
+                <div class="carte-arrow">
+                    <lightning-icon icon-name="utility:chevronright" size="x-small"></lightning-icon>
+                </div>
             </div>
             <div class="carte carte-opp" onclick={naviguerOpportunites}>
-                <div class="carte-icon"><lightning-icon icon-name="standard:opportunity" size="large"></lightning-icon></div>
-                <div class="carte-body">
-                    <h2 class="carte-titre">Qualification</h2>
-                    <p class="carte-desc">Suivez vos opportunités et votre pipeline</p>
+                <div class="carte-icon-wrap carte-icon-opp">
+                    <lightning-icon icon-name="standard:opportunity" size="medium"></lightning-icon>
                 </div>
-                <div class="carte-arrow"><lightning-icon icon-name="utility:chevronright" size="small"></lightning-icon></div>
+                <div class="carte-body">
+                    <h2 class="carte-titre">Opportunités</h2>
+                    <p class="carte-desc">Suivez votre pipeline commercial</p>
+                </div>
+                <div class="carte-arrow">
+                    <lightning-icon icon-name="utility:chevronright" size="x-small"></lightning-icon>
+                </div>
             </div>
-            <div class="carte carte-account" onclick={naviguerComptes}>
-                <div class="carte-icon"><lightning-icon icon-name="standard:account" size="large"></lightning-icon></div>
-                <div class="carte-body">
-                    <h2 class="carte-titre">Comptes & Contacts</h2>
-                    <p class="carte-desc">Accédez à vos clients et prospects</p>
+            <div class="carte carte-tache" onclick={naviguerTaches}>
+                <div class="carte-icon-wrap carte-icon-tache">
+                    <lightning-icon icon-name="standard:task" size="medium"></lightning-icon>
                 </div>
-                <div class="carte-arrow"><lightning-icon icon-name="utility:chevronright" size="small"></lightning-icon></div>
+                <div class="carte-body">
+                    <h2 class="carte-titre">Tâches</h2>
+                    <p class="carte-desc">Consultez et gérez vos tâches</p>
+                </div>
+                <div class="carte-arrow">
+                    <lightning-icon icon-name="utility:chevronright" size="x-small"></lightning-icon>
+                </div>
             </div>
-            <div class="carte carte-contrat" onclick={naviguerContrats}>
-                <div class="carte-icon"><lightning-icon icon-name="standard:contract" size="large"></lightning-icon></div>
-                <div class="carte-body">
-                    <h2 class="carte-titre">Contrats</h2>
-                    <p class="carte-desc">Gérez vos contrats et leur suivi</p>
+            <div class="carte carte-cr" onclick={naviguerComptesRendus}>
+                <div class="carte-icon-wrap carte-icon-cr">
+                    <lightning-icon icon-name="standard:note" size="medium"></lightning-icon>
                 </div>
-                <div class="carte-arrow"><lightning-icon icon-name="utility:chevronright" size="small"></lightning-icon></div>
-            </div>
-            <div class="carte carte-report" onclick={naviguerRapports}>
-                <div class="carte-icon"><lightning-icon icon-name="standard:report" size="large"></lightning-icon></div>
                 <div class="carte-body">
-                    <h2 class="carte-titre">Rapports</h2>
-                    <p class="carte-desc">Analysez vos performances commerciales</p>
+                    <h2 class="carte-titre">Comptes Rendus RDV</h2>
+                    <p class="carte-desc">Accédez aux comptes rendus de vos rendez-vous</p>
                 </div>
-                <div class="carte-arrow"><lightning-icon icon-name="utility:chevronright" size="small"></lightning-icon></div>
-            </div>
-            <div class="carte carte-dashboard" onclick={naviguerKPI}>
-                <div class="carte-icon"><lightning-icon icon-name="standard:dashboard" size="large"></lightning-icon></div>
-                <div class="carte-body">
-                    <h2 class="carte-titre">KPI & Tableaux de bord</h2>
-                    <p class="carte-desc">Visualisez vos indicateurs clés</p>
+                <div class="carte-arrow">
+                    <lightning-icon icon-name="utility:chevronright" size="x-small"></lightning-icon>
                 </div>
-                <div class="carte-arrow"><lightning-icon icon-name="utility:chevronright" size="small"></lightning-icon></div>
             </div>
         </div>
 
-        <!-- ACTIVITES + TACHES -->
-        <div class="bottom-grid">
-
-            <!-- Activité récente -->
-            <div class="section-card">
-                <div class="section-header">
-                    <lightning-icon icon-name="utility:activity" size="small"></lightning-icon>
-                    <h2 class="section-titre">Activité récente</h2>
-                </div>
-                <template if:true={activites.length}>
-                    <ul class="liste-items">
-                        <template for:each={activites} for:item="item">
-                            <li key={item.id} class="list-item">
-                                <lightning-icon icon-name={item.icone} size="small"></lightning-icon>
-                                <div class="item-body">
-                                    <span class="item-nom">{item.nom}</span>
-                                    <span class="item-meta">{item.type} &bull; {item.statut} &bull; {item.date}</span>
-                                </div>
-                            </li>
-                        </template>
-                    </ul>
-                </template>
-                <template if:false={activites.length}>
-                    <p class="vide-msg">Aucune activité récente.</p>
-                </template>
-            </div>
-
-            <!-- Tâches du jour -->
-            <div class="section-card">
-                <div class="section-header">
-                    <lightning-icon icon-name="standard:task" size="small"></lightning-icon>
-                    <h2 class="section-titre">Mes tâches du jour</h2>
-                </div>
-                <template if:true={taches.length}>
-                    <ul class="liste-items">
-                        <template for:each={taches} for:item="tache">
-                            <li key={tache.id} class="list-item">
-                                <div class="priorite-dot" data-priorite={tache.priorite}></div>
-                                <div class="item-body">
-                                    <span class="item-nom">{tache.sujet}</span>
-                                    <span class="item-meta">{tache.priorite} &bull; {tache.statut}</span>
-                                </div>
-                            </li>
-                        </template>
-                    </ul>
-                </template>
-                <template if:false={taches.length}>
-                    <div class="vide-ok">
-                        <lightning-icon icon-name="utility:check" size="small"></lightning-icon>
-                        <p class="vide-msg-ok">Aucune tâche en attente !</p>
+        <!-- TACHES DU JOUR -->
+        <div class="section-label">Mes tâches du jour</div>
+        <div class="section-card">
+            <template if:true={taches.length}>
+                <ul class="liste-items">
+                    <template for:each={taches} for:item="tache">
+                        <li key={tache.id} class="list-item" data-id={tache.id} onclick={naviguerTache}>
+                            <div class="priorite-badge" data-priorite={tache.priorite}>
+                                {tache.priorite}
+                            </div>
+                            <div class="item-body">
+                                <span class="item-nom">{tache.sujet}</span>
+                                <span class="item-meta">{tache.statut}</span>
+                            </div>
+                            <lightning-icon icon-name="utility:chevronright" size="x-small" class="item-arrow"></lightning-icon>
+                        </li>
+                    </template>
+                </ul>
+            </template>
+            <template if:false={taches.length}>
+                <div class="vide-ok">
+                    <div class="vide-icon">
+                        <lightning-icon icon-name="utility:check" size="medium"></lightning-icon>
                     </div>
-                </template>
-            </div>
-
+                    <p class="vide-titre">Tout est à jour !</p>
+                    <p class="vide-msg-ok">Aucune tâche en attente pour aujourd'hui.</p>
+                </div>
+            </template>
         </div>
+
     </div>
 </template>

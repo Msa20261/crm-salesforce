@@ -1,0 +1,105 @@
+<template>
+    <div class="timeline-wrapper">
+
+        <!-- HEADER -->
+        <div class="panel-header">
+            <div class="header-left">
+                <div class="header-icon">
+                    <lightning-icon icon-name="utility:metrics" size="small"></lightning-icon>
+                </div>
+                <h2 class="panel-title">Consommation</h2>
+            </div>
+            <div class="legend">
+                <span class="legend-dot dot-green"></span><span class="legend-label">Normal</span>
+                <span class="legend-dot dot-orange"></span><span class="legend-label">Attention</span>
+                <span class="legend-dot dot-red"></span><span class="legend-label">Dépassé</span>
+            </div>
+        </div>
+
+        <!-- LOADING -->
+        <template if:true={isLoading}>
+            <div class="loading-wrap">
+                <lightning-spinner alternative-text="Chargement" size="small"></lightning-spinner>
+            </div>
+        </template>
+
+        <!-- ERREUR -->
+        <template if:true={erreur}>
+            <div class="error-state">
+                <lightning-icon icon-name="utility:error" size="small"></lightning-icon>
+                <span>Impossible de charger les consommations.</span>
+            </div>
+        </template>
+
+        <!-- KPI ROW -->
+        <template if:false={isLoading}>
+            <template if:true={hasConsommations}>
+                <div class="kpi-row">
+                    <div class="kpi-mini">
+                        <span class="kpi-val">{totalAchete}</span>
+                        <span class="kpi-lbl">Budget total</span>
+                    </div>
+                    <div class="kpi-mini">
+                        <span class="kpi-val kpi-conso">{totalConso}</span>
+                        <span class="kpi-lbl">Consommé</span>
+                    </div>
+                    <div class="kpi-mini">
+                        <span class="kpi-val kpi-restant">{totalRestant}</span>
+                        <span class="kpi-lbl">Restant</span>
+                    </div>
+                    <div class="kpi-mini">
+                        <div class="pct-circle-wrap">
+                            <span class={pctGlobalClass}>{pctGlobal}%</span>
+                        </div>
+                        <span class="kpi-lbl">Taux global</span>
+                    </div>
+                </div>
+
+                <!-- BARRE GLOBALE -->
+                <div class="global-bar-section">
+                    <div class="global-bar-bg">
+                        <div class="global-bar-fill" style={globalBarStyle}></div>
+                        <div class="global-bar-label">{pctGlobal}% consommé</div>
+                    </div>
+                </div>
+
+                <!-- TIMELINE -->
+                <div class="timeline-list">
+                    <template for:each={periodes} for:item="p">
+                        <div key={p.Id} class="periode-row">
+                            <div class="periode-header">
+                                <div class="periode-info">
+                                    <span class="periode-name">{p.Name}</span>
+                                    <span class="periode-dates">{p.labelPeriode}</span>
+                                </div>
+                                <div class="periode-amounts">
+                                    <span class="amount-conso">{p.consoFormatee}</span>
+                                    <span class="amount-sep">/</span>
+                                    <span class="amount-achete">{p.acheteFormate}</span>
+                                    <span class={p.cssSource}>{p.Source__c}</span>
+                                </div>
+                            </div>
+                            <div class="bar-track">
+                                <div class="bar-fill" style={p.barStyle}></div>
+                            </div>
+                            <div class="periode-footer">
+                                <span class="restant-label">Restant : {p.restantFormate}</span>
+                                <span class={p.cssPct}>{p.pct}%</span>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </template>
+
+            <!-- VIDE -->
+            <template if:false={hasConsommations}>
+                <div class="vide-state">
+                    <lightning-icon icon-name="utility:insert_tag_field" size="medium"></lightning-icon>
+                    <p class="vide-titre">Aucune consommation</p>
+                    <p class="vide-sub">Aucune période enregistrée pour cette ligne.</p>
+                </div>
+            </template>
+        </template>
+
+    </div>
+</template>
