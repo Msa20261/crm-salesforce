@@ -227,30 +227,45 @@ public with sharing class ConsumptionTriggerHandler {
 
     private static void envoyerEmails(Map<String, List<String>> emailsAEnvoyer, Map<String, String> ownerNames) {
         try {
-            List<OrgWideEmailAddress> owea = [SELECT Id FROM OrgWideEmailAddress WHERE IsAllowAllProfiles = true ORDER BY Address LIMIT 5];
+            List<OrgWideEmailAddress> oweaList = [SELECT Id, Address FROM OrgWideEmailAddress WHERE IsAllowAllProfiles = true ORDER BY Address LIMIT 5];
             Id oweaId = null;
-            for (OrgWideEmailAddress o : owea) { oweaId = o.Id; break; }
+            for (OrgWideEmailAddress o : oweaList) {
+                if (o.Address.contains('upmind.fr')) { oweaId = o.Id; break; }
+            }
+            if (oweaId == null && !oweaList.isEmpty()) oweaId = oweaList[0].Id;
 
             List<Messaging.SingleEmailMessage> emails = new List<Messaging.SingleEmailMessage>();
             for (String email : emailsAEnvoyer.keySet()) {
                 List<String> alertes = emailsAEnvoyer.get(email);
                 String nom = ownerNames.get(email);
+                String nbAlertes = alertes.size() == 1 ? 'Une nouvelle alerte a été générée' : alertes.size() + ' nouvelles alertes ont été générées';
 
-                String corps = 'Bonjour ' + nom + ',\n\n';
-                corps += alertes.size() == 1
-                    ? 'Une nouvelle alerte a été générée dans le CRM Upmind Ludwig :\n\n'
-                    : alertes.size() + ' nouvelles alertes ont été générées dans le CRM Upmind Ludwig :\n\n';
+                // Corps HTML
+                String html = htmlEntete() +
+                    '<p style="color:#333;font-size:16px;margin-top:0;">Bonjour ' + nom + ',</p>' +
+                    '<p style="color:#555;">' + nbAlertes + ' dans le CRM Upmind Ludwig :</p>';
                 for (String alerte : alertes) {
-                    corps += '• ' + alerte + '\n';
+                    String couleur = couleurAlerte(alerte);
+                    String bg      = bgAlerte(alerte);
+                    html += '<div style="border-left:4px solid ' + couleur + ';background:' + bg + ';padding:12px 16px;margin:8px 0;border-radius:0 4px 4px 0;">' +
+                            '<p style="margin:0;color:#333;font-size:14px;">' + alerte + '</p>' +
+                            '</div>';
                 }
-                corps += '\nConnectez-vous sur Salesforce pour consulter et traiter ces alertes.\n\n';
-                corps += 'Cordialement,\nCRM Upmind Ludwig';
+                html += '<p style="color:#555;margin-top:24px;">Connectez-vous sur Salesforce pour consulter et traiter ces alertes.</p>' +
+                        '<p style="color:#555;margin-bottom:0;">Cordialement,<br><strong>CRM Upmind Ludwig</strong></p>' +
+                        htmlPied();
+
+                // Corps texte brut (secours)
+                String texte = 'Bonjour ' + nom + ',\n\n' + nbAlertes + ' dans le CRM Upmind Ludwig :\n\n';
+                for (String alerte : alertes) { texte += '• ' + alerte + '\n'; }
+                texte += '\nConnectez-vous sur Salesforce pour consulter et traiter ces alertes.\n\nCordialement,\nCRM Upmind Ludwig';
 
                 Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
                 if (oweaId != null) mail.setOrgWideEmailAddressId(oweaId);
                 mail.setToAddresses(new List<String>{ email });
-                mail.setSubject('🔔 ' + alertes.size() + ' alerte(s) consommation — CRM Upmind Ludwig');
-                mail.setPlainTextBody(corps);
+                mail.setSubject('[ALERTE] ' + alertes.size() + ' alerte(s) consommation — CRM Upmind Ludwig');
+                mail.setHtmlBody(html);
+                mail.setPlainTextBody(texte);
                 emails.add(mail);
             }
 
@@ -258,5 +273,34 @@ public with sharing class ConsumptionTriggerHandler {
         } catch (Exception e) {
             System.debug('Envoi email alerte échoué : ' + e.getMessage());
         }
+    }
+
+    private static String htmlEntete() {
+        return '<html><body style="margin:0;padding:0;background:#f4f6f9;font-family:Arial,Helvetica,sans-serif;">' +
+            '<table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:30px 20px;">' +
+            '<table width="600" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.1);">' +
+            '<tr><td style="background:#1B3A6B;padding:24px;text-align:center;border-radius:8px 8px 0 0;">' +
+            '<h1 style="color:#fff;margin:0;font-size:22px;">Alertes Consommation</h1>' +
+            '<p style="color:#a8c4e8;margin:4px 0 0 0;font-size:14px;">CRM Upmind Ludwig</p>' +
+            '</td></tr><tr><td style="padding:32px;">';
+    }
+
+    private static String htmlPied() {
+        return '</td></tr>' +
+            '<tr><td style="background:#f4f6f9;padding:16px;text-align:center;border-top:1px solid #e8e8e8;border-radius:0 0 8px 8px;">' +
+            '<p style="color:#aaa;font-size:12px;margin:0;">CRM Upmind Ludwig &mdash; Ne pas répondre à cet email</p>' +
+            '</td></tr></table></td></tr></table></body></html>';
+    }
+
+    private static String couleurAlerte(String alerte) {
+        if (alerte.startsWith('[SURFACTURATION]'))      return '#C62828';
+        if (alerte.startsWith('[PROVISION'))            return '#E65100';
+        return '#F57F17';
+    }
+
+    private static String bgAlerte(String alerte) {
+        if (alerte.startsWith('[SURFACTURATION]'))      return '#FFEBEE';
+        if (alerte.startsWith('[PROVISION'))            return '#FFF3E0';
+        return '#FFFDE7';
     }
 }

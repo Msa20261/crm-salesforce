@@ -1,0 +1,66 @@
+<template>
+    <lightning-card title="Cartographie des clients" icon-name="standard:account">
+        <div class="slds-p-around_medium">
+
+            <!-- KPIs -->
+            <div class="slds-grid slds-wrap slds-gutters_small slds-m-bottom_large">
+                <div class="slds-col slds-size_1-of-3">
+                    <div class="kpi-card">
+                        <div class="kpi-value">{totalClients}</div>
+                        <div class="kpi-label">Clients avec contrat</div>
+                    </div>
+                </div>
+                <div class="slds-col slds-size_1-of-3">
+                    <div class="kpi-card kpi-ok">
+                        <div class="kpi-value">{nbAvecAdresse}</div>
+                        <div class="kpi-label">Géolocalisés sur la carte</div>
+                    </div>
+                </div>
+                <div class="slds-col slds-size_1-of-3">
+                    <div class="kpi-card kpi-warn">
+                        <div class="kpi-value">{nbSansAdresse}</div>
+                        <div class="kpi-label">Sans adresse</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Carte -->
+            <template if:true={hasMarkers}>
+                <lightning-map
+                    map-markers={markers}
+                    zoom-level="5"
+                    list-view="visible"
+                    markers-title="Clients avec contrat"
+                ></lightning-map>
+            </template>
+
+            <!-- Message si aucune adresse -->
+            <template if:false={hasMarkers}>
+                <div class="empty-state">
+                    <lightning-icon icon-name="utility:location" size="large" class="slds-m-bottom_small"></lightning-icon>
+                    <p class="slds-text-heading_small slds-m-top_small">Aucune adresse renseignée</p>
+                    <p class="slds-text-color_weak slds-m-top_x-small">
+                        Renseignez l'adresse de facturation sur les fiches compte pour afficher les clients sur la carte.
+                    </p>
+                </div>
+            </template>
+
+            <!-- Liste des comptes sans adresse -->
+            <template if:true={hasSansAdresse}>
+                <div class="slds-m-top_large">
+                    <p class="slds-text-title_caps slds-text-color_weak slds-m-bottom_small">
+                        Comptes sans adresse — à compléter
+                    </p>
+                    <template for:each={sansAdresse} for:item="compte">
+                        <div key={compte.id} class="manquant-row">
+                            <lightning-icon icon-name="utility:warning" size="x-small" variant="warning"></lightning-icon>
+                            <a href={compte.url} target="_blank" class="slds-m-left_x-small compte-link">{compte.nom}</a>
+                            <span class="slds-badge slds-m-left_small">{compte.nbContrats} contrat(s)</span>
+                        </div>
+                    </template>
+                </div>
+            </template>
+
+        </div>
+    </lightning-card>
+</template>
