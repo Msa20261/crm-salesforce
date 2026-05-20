@@ -4,6 +4,8 @@ import getAccountsAvecContrat from '@salesforce/apex/CarteClientsController.getA
 export default class CarteClients extends LightningElement {
     @track markers = [];
     @track sansAdresse = [];
+    @track erreur = null;
+    isLoading = true;
 
     totalClients  = 0;
     nbAvecAdresse = 0;
@@ -11,7 +13,9 @@ export default class CarteClients extends LightningElement {
 
     @wire(getAccountsAvecContrat)
     wiredData({ data, error }) {
+        this.isLoading = false;
         if (data) {
+            this.erreur = null;
             this.totalClients = data.length;
 
             const avecAdresse = data.filter(a => a.aAdresse);
@@ -20,16 +24,16 @@ export default class CarteClients extends LightningElement {
             this.nbAvecAdresse = avecAdresse.length;
             this.nbSansAdresse = sansAdresse.length;
 
-            this.markers = avecAdresse.map(a => ({
-                location: {
-                    Street:     a.rue       || '',
-                    City:       a.ville,
-                    PostalCode: a.codePostal || '',
-                    Country:    a.pays       || 'France'
-                },
-                title:       a.nom,
-                description: a.nbContrats + ' contrat(s)'
-            }));
+            this.markers = avecAdresse.map(a => {
+                const location = (a.latitude && a.longitude)
+                    ? { Latitude: a.latitude, Longitude: a.longitude }
+                    : { Street: a.rue || '', City: a.ville, PostalCode: a.codePostal || '', Country: a.pays || 'France' };
+                return {
+                    location,
+                    title:       a.nom,
+                    description: a.nbContrats + ' contrat(s)'
+                };
+            });
 
             this.sansAdresse = sansAdresse.map(a => ({
                 id:         a.id,
@@ -37,6 +41,8 @@ export default class CarteClients extends LightningElement {
                 nbContrats: a.nbContrats,
                 url:        '/lightning/r/Account/' + a.id + '/view'
             }));
+        } else if (error) {
+            this.erreur = (error.body && error.body.message) ? error.body.message : 'Erreur lors du chargement de la carte.';
         }
     }
 

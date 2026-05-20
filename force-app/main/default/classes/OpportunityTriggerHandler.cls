@@ -2,6 +2,32 @@ public class OpportunityTriggerHandler {
 
     private static Boolean isRunning = false;
 
+    // Copie l'adresse de facturation du Compte associé vers le champ adresse__c de l'Opportunité
+    public static void handleBeforeInsertUpdate(List<Opportunity> opps) {
+        Set<Id> accountIds = new Set<Id>();
+        for (Opportunity opp : opps) {
+            if (opp.AccountId != null) accountIds.add(opp.AccountId);
+        }
+        if (accountIds.isEmpty()) return;
+
+        Map<Id, Account> comptes = new Map<Id, Account>([
+            SELECT Id, BillingStreet, BillingCity, BillingPostalCode
+            FROM Account
+            WHERE Id IN :accountIds
+        ]);
+
+        for (Opportunity opp : opps) {
+            if (opp.AccountId == null) continue;
+            Account compte = comptes.get(opp.AccountId);
+            if (compte == null) continue;
+            if (compte.BillingCity == null && compte.BillingStreet == null) continue;
+
+            opp.adresse__Street__s     = compte.BillingStreet;
+            opp.adresse__City__s       = compte.BillingCity;
+            opp.adresse__PostalCode__s = compte.BillingPostalCode;
+        }
+    }
+
     public static void handleAfterUpdate(List<Opportunity> newOpps, Map<Id, Opportunity> oldMap) {
         if (isRunning) return;
 

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FlexiPage xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Carte géographique des clients avec contrat actif</description>
+    <flexiPageRegions>
+        <name>region1</name>
+        <type>Region</type>
+        <itemInstances>
+            <componentInstance>
+                <componentName>c:carteClients</componentName>
+                <identifier>c_carteClients</identifier>
+            </componentInstance>
+        </itemInstances>
+    </flexiPageRegions>
+    <masterLabel>Cartographie Clients</masterLabel>
+    <template>
+        <name>flexipage:appHomeTemplateHeaderTwoColumnsLeftSidebar</name>
+    </template>
+    <type>AppPage</type>
+</FlexiPage>

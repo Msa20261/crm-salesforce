@@ -7,6 +7,8 @@ public with sharing class CarteClientsController {
         @AuraEnabled public String ville;
         @AuraEnabled public String codePostal;
         @AuraEnabled public String pays;
+        @AuraEnabled public Decimal latitude;
+        @AuraEnabled public Decimal longitude;
         @AuraEnabled public Integer nbContrats;
         @AuraEnabled public Boolean aAdresse;
     }
@@ -24,20 +26,28 @@ public with sharing class CarteClientsController {
 
         List<AccountInfo> result = new List<AccountInfo>();
         for (Account a : [
-            SELECT Id, Name, BillingStreet, BillingCity, BillingPostalCode, BillingCountry
+            SELECT Id, Name, BillingStreet, BillingCity, BillingPostalCode, BillingCountry,
+                   BillingLatitude, BillingLongitude
             FROM Account
             WHERE Id IN :nbContrats.keySet()
             ORDER BY Name
         ]) {
             AccountInfo info = new AccountInfo();
-            info.id        = a.Id;
-            info.nom       = a.Name;
-            info.rue       = a.BillingStreet;
-            info.ville     = a.BillingCity;
+            info.id         = a.Id;
+            info.nom        = a.Name;
+            info.rue        = a.BillingStreet;
+            info.ville      = a.BillingCity;
             info.codePostal = a.BillingPostalCode;
-            info.pays      = a.BillingCountry != null ? a.BillingCountry : 'France';
+            info.latitude   = a.BillingLatitude;
+            info.longitude  = a.BillingLongitude;
             info.nbContrats = nbContrats.get(a.Id);
-            info.aAdresse  = (a.BillingCity != null);
+
+            // Normalise le pays en "Title Case" pour le géocodage (ex: FRANCE → France)
+            String pays = a.BillingCountry != null ? a.BillingCountry : 'France';
+            info.pays = pays.substring(0,1).toUpperCase() + pays.substring(1).toLowerCase();
+
+            // Géolocalisable si coordonnées GPS présentes OU ville renseignée
+            info.aAdresse = (a.BillingLatitude != null) || (a.BillingCity != null && a.BillingCity != '');
             result.add(info);
         }
         return result;

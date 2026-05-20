@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FlexiPage xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Page d'accueil de l'application Upmind Ludwig</description>
+    <flexiPageRegions>
+        <name>main</name>
+        <type>Region</type>
+        <itemInstances>
+            <componentInstance>
+                <componentName>c:bienvenue</componentName>
+            </componentInstance>
+        </itemInstances>
+    </flexiPageRegions>
+    <masterLabel>Upmind Ludwig Home</masterLabel>
+    <template>
+        <name>AppPage_Default</name>
+    </template>
+    <type>AppPage</type>
+</FlexiPage>

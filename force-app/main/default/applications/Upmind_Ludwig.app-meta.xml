@@ -8,6 +8,7 @@
     <label>Upmind Ludwig</label>
     <navType>Standard</navType>
     <tabs>Bienvenue_Tab</tabs>
+    <tabs>Cartographie_Clients</tabs>
     <tabs>standard-Lead</tabs>
     <tabs>standard-Account</tabs>
     <tabs>standard-Contact</tabs>
