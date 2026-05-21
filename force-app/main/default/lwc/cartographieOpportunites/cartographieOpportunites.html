@@ -1,0 +1,66 @@
+<template>
+    <lightning-card title="Cartographie des Opportunités" icon-name="standard:opportunity">
+        <div class="slds-p-around_medium">
+
+            <template if:true={isLoading}>
+                <div class="slds-align_absolute-center slds-p-around_large">
+                    <lightning-spinner alternative-text="Chargement..." size="medium"></lightning-spinner>
+                </div>
+            </template>
+
+            <template if:true={erreur}>
+                <div class="slds-notify slds-notify_alert slds-alert_error slds-m-bottom_medium" role="alert">
+                    <lightning-icon icon-name="utility:error" size="x-small" class="slds-m-right_x-small"></lightning-icon>
+                    {erreur}
+                </div>
+            </template>
+
+            <template if:false={isLoading}>
+
+                <!-- Filtres -->
+                <div class="slds-grid slds-wrap slds-gutters_small slds-m-bottom_medium">
+                    <div class="slds-col slds-size_1-of-3">
+                        <lightning-combobox
+                            label="Compte"
+                            value={filtreCompte}
+                            options={optionsComptes}
+                            onchange={handleFiltreCompte}>
+                        </lightning-combobox>
+                    </div>
+                    <div class="slds-col slds-size_1-of-3">
+                        <lightning-combobox
+                            label="Étape"
+                            value={filtreEtape}
+                            options={optionsEtapes}
+                            onchange={handleFiltreEtape}>
+                        </lightning-combobox>
+                    </div>
+                    <div class="slds-col slds-size_1-of-3">
+                        <lightning-combobox
+                            label="Année de création"
+                            value={filtreAnnee}
+                            options={optionsAnnees}
+                            onchange={handleFiltreAnnee}>
+                        </lightning-combobox>
+                    </div>
+                </div>
+
+                <!-- Résumé + réinitialiser -->
+                <div class="slds-grid slds-grid_align-spread slds-m-bottom_small">
+                    <span class="slds-badge slds-badge_lightest">{nbResultats} opportunité(s) affichée(s)</span>
+                    <lightning-button
+                        label="Réinitialiser"
+                        icon-name="utility:refresh"
+                        onclick={reinitialiserFiltres}
+                        variant="neutral">
+                    </lightning-button>
+                </div>
+
+                <!-- Carte enfant -->
+                <c-carte-leaflet opportunities={filteredOpps}></c-carte-leaflet>
+
+            </template>
+
+        </div>
+    </lightning-card>
+</template>

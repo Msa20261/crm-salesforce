@@ -1,0 +1,17 @@
+<template>
+    <template if:true={erreur}>
+        <div class="slds-notify slds-notify_alert slds-alert_error slds-m-bottom_small" role="alert">
+            <lightning-icon icon-name="utility:error" size="x-small" class="slds-m-right_x-small"></lightning-icon>
+            {erreur}
+        </div>
+    </template>
+
+    <div class="carte-wrapper">
+        <template if:true={isLoading}>
+            <div class="carte-spinner">
+                <lightning-spinner alternative-text="Chargement..." size="medium"></lightning-spinner>
+            </div>
+        </template>
+        <div class="carte-container"></div>
+    </div>
+</template>
