@@ -91,6 +91,25 @@ public with sharing class RdvController {
         return cr.Id;
     }
 
+    // ─── DERNIER RDV DU LEAD (pour pré-remplir le CR) ─────────────────────────
+
+    @AuraEnabled(cacheable=true)
+    public static Map<String, String> getDernierRdvLead(Id leadId) {
+        Map<String, String> result = new Map<String, String>();
+        List<Event> events = [
+            SELECT Id, StartDateTime, Type
+            FROM Event
+            WHERE WhoId = :leadId
+            ORDER BY StartDateTime DESC
+            LIMIT 1
+        ];
+        if (!events.isEmpty()) {
+            result.put('date', String.valueOf(events[0].StartDateTime.date()));
+            result.put('type', events[0].Type != null ? events[0].Type : '');
+        }
+        return result;
+    }
+
     // ─── UTILISATEURS ACTIFS ───────────────────────────────────────────────────
 
     @AuraEnabled(cacheable=true)

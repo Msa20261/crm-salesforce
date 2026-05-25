@@ -1,9 +1,10 @@
 import { LightningElement, api, wire } from 'lwc';
 import { getRecord, getFieldValue, getRecordNotifyChange } from 'lightning/uiRecordApi';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
-import creerRdv          from '@salesforce/apex/RdvController.creerRdv';
-import creerCompteRendu  from '@salesforce/apex/RdvController.creerCompteRendu';
-import getUsers          from '@salesforce/apex/RdvController.getUsers';
+import creerRdv           from '@salesforce/apex/RdvController.creerRdv';
+import creerCompteRendu   from '@salesforce/apex/RdvController.creerCompteRendu';
+import getDernierRdvLead  from '@salesforce/apex/RdvController.getDernierRdvLead';
+import getUsers           from '@salesforce/apex/RdvController.getUsers';
 import LEAD_STATUS      from '@salesforce/schema/Lead.Status';
 import LEAD_FIRSTNAME   from '@salesforce/schema/Lead.FirstName';
 import LEAD_LASTNAME    from '@salesforce/schema/Lead.LastName';
@@ -162,7 +163,20 @@ export default class PopupRdv extends LightningElement {
 
     // ── MODAL COMPTE RENDU — OUVERTURE / FERMETURE ────────────────────────────
 
-    ouvrirModalCR() { this.modalCROuvert = true;  this.erreurCR = null; }
+    async ouvrirModalCR() {
+        this.modalCROuvert = true;
+        this.erreurCR = null;
+        try {
+            // Récupère la date et le type du dernier Event RDV lié à ce lead
+            const rdv = await getDernierRdvLead({ leadId: this.recordId });
+            if (rdv) {
+                if (rdv.date) this.dateRdvCR = rdv.date;
+                if (rdv.type) this.typeRdvCR = rdv.type;
+            }
+        } catch (e) {
+            // Silencieux : les champs restent vides si aucun Event trouvé
+        }
+    }
     fermerModalCR() { this.modalCROuvert = false; this._reinitCR(); }
 
     // ── MODAL COMPTE RENDU — HANDLERS ─────────────────────────────────────────
