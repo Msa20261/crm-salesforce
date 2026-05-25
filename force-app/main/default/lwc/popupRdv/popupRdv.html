@@ -1,5 +1,6 @@
 <template>
-    <!-- Bannière visible uniquement quand statut = RDV à organiser -->
+
+    <!-- ══ BANNIÈRE : RDV À ORGANISER ══════════════════════════════════════════ -->
     <template if:true={afficherBouton}>
         <div class="rdv-banner slds-m-bottom_small">
             <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-p-around_small">
@@ -21,7 +22,7 @@
         </div>
     </template>
 
-    <!-- Bannière visible uniquement quand statut = RDV Fait -->
+    <!-- ══ BANNIÈRE : RDV FAIT ══════════════════════════════════════════════════ -->
     <template if:true={afficherBoutonRdvFait}>
         <div class="rdv-banner slds-m-bottom_small">
             <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-p-around_small">
@@ -43,137 +44,24 @@
         </div>
     </template>
 
-    <!-- Modal Compte Rendu RDV -->
-    <template if:true={modalCROuvert}>
-        <section role="dialog" tabindex="-1" aria-modal="true" class="slds-modal slds-fade-in-open">
-            <div class="slds-modal__container">
-
-                <!-- Header -->
-                <header class="slds-modal__header">
-                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" onclick={fermerModalCR}>
-                        <lightning-icon icon-name="utility:close" alternative-text="Fermer" size="small"></lightning-icon>
-                    </button>
-                    <h2 class="slds-modal__title slds-hyphenate">
-                        <lightning-icon icon-name="utility:task" size="small" class="slds-m-right_x-small"></lightning-icon>
-                        Nouveau compte rendu — {nomLead}
-                    </h2>
-                </header>
-
-                <!-- Formulaire natif Salesforce -->
-                <div class="slds-modal__content slds-p-around_medium">
-                    <lightning-record-edit-form
-                        object-api-name="Compte_Rendu_RDV__c"
-                        onsuccess={handleSuccessCR}
-                        onerror={handleErrorCR}>
-
-                        <div class="slds-grid slds-wrap slds-gutters">
-
-                            <!-- Piste liée — pré-remplie et verrouillée -->
-                            <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
-                                <lightning-input-field
-                                    field-name="Piste__c"
-                                    value={recordId}
-                                    disabled>
-                                </lightning-input-field>
-                            </div>
-
-                            <!-- Effectué par — pré-rempli avec le créateur de la piste -->
-                            <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
-                                <lightning-input-field
-                                    field-name="Effectue_par__c"
-                                    value={leadCreatedById}>
-                                </lightning-input-field>
-                            </div>
-
-                            <!-- Date du RDV -->
-                            <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
-                                <lightning-input-field field-name="Date_RDV__c"></lightning-input-field>
-                            </div>
-
-                            <!-- Type de RDV -->
-                            <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
-                                <lightning-input-field field-name="Type_RDV__c"></lightning-input-field>
-                            </div>
-
-                            <!-- Avec qui -->
-                            <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
-                                <lightning-input-field field-name="Avec_qui__c"></lightning-input-field>
-                            </div>
-
-                            <!-- Intérêt détecté -->
-                            <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
-                                <lightning-input-field field-name="Interet_detecte__c"></lightning-input-field>
-                            </div>
-
-                            <!-- Compte rendu -->
-                            <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
-                                <lightning-input-field field-name="Compte_rendu__c"></lightning-input-field>
-                            </div>
-
-                            <!-- Prochaine action -->
-                            <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
-                                <lightning-input-field field-name="Prochaine_action__c"></lightning-input-field>
-                            </div>
-
-                            <!-- Date prochaine action -->
-                            <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
-                                <lightning-input-field field-name="Date_prochaine_action__c"></lightning-input-field>
-                            </div>
-
-                        </div>
-
-                        <!-- Footer dans le formulaire pour accès au bouton submit natif -->
-                        <div class="slds-modal__footer">
-                            <lightning-button
-                                label="Annuler"
-                                onclick={fermerModalCR}
-                                class="slds-m-right_small">
-                            </lightning-button>
-                            <lightning-button
-                                type="submit"
-                                variant="brand"
-                                label="Enregistrer le compte rendu"
-                                icon-name="utility:save">
-                            </lightning-button>
-                        </div>
-
-                    </lightning-record-edit-form>
-                </div>
-
-            </div>
-        </section>
-        <div class="slds-backdrop slds-backdrop_open"></div>
-    </template>
-
-    <!-- Modal popup RDV (existant) -->
+    <!-- ══ MODAL : CRÉER UN RDV (Event + Task) ══════════════════════════════════ -->
     <template if:true={modalOuvert}>
         <section role="dialog" tabindex="-1" aria-modal="true" class="slds-modal slds-fade-in-open">
             <div class="slds-modal__container">
 
-                <!-- Header -->
                 <header class="slds-modal__header">
-                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" onclick={fermerModal}>
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+                            onclick={fermerModal}>
                         <lightning-icon icon-name="utility:close" alternative-text="Fermer" size="small"></lightning-icon>
                     </button>
                     <h2 class="slds-modal__title slds-hyphenate">
                         <lightning-icon icon-name="utility:event" size="small" class="slds-m-right_x-small"></lightning-icon>
-                        Créer un rendez-vous
+                        Créer un rendez-vous — {nomLead}
                     </h2>
                 </header>
 
-                <!-- Contenu du formulaire -->
                 <div class="slds-modal__content slds-p-around_medium">
                     <div class="slds-grid slds-wrap slds-gutters">
-
-                        <!-- Piste liée (lecture seule, auto-rempli) -->
-                        <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
-                            <lightning-input
-                                label="Piste (Nom)"
-                                value={nomLead}
-                                readonly
-                                disabled>
-                            </lightning-input>
-                        </div>
 
                         <!-- Sujet (pleine largeur) -->
                         <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
@@ -181,7 +69,7 @@
                                 label="Sujet"
                                 value={sujet}
                                 onchange={handleSujet}
-                                placeholder="Ex: Appel découverte avec prospect"
+                                placeholder="Ex : Appel découverte — {nomLead}"
                                 required>
                             </lightning-input>
                         </div>
@@ -197,18 +85,7 @@
                             </lightning-combobox>
                         </div>
 
-                        <!-- Date d'échéance -->
-                        <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
-                            <lightning-input
-                                type="date"
-                                label="Date d'échéance"
-                                value={dateEcheance}
-                                onchange={handleDate}
-                                required>
-                            </lightning-input>
-                        </div>
-
-                        <!-- Assigné à (User) -->
+                        <!-- Assigné à -->
                         <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
                             <lightning-combobox
                                 label="Assigné à"
@@ -217,6 +94,37 @@
                                 placeholder="Sélectionner un utilisateur"
                                 onchange={handleAssigne}>
                             </lightning-combobox>
+                        </div>
+
+                        <!-- Date -->
+                        <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+                            <lightning-input
+                                type="date"
+                                label="Date du rendez-vous"
+                                value={dateEcheance}
+                                onchange={handleDate}
+                                required>
+                            </lightning-input>
+                        </div>
+
+                        <!-- Heure de début -->
+                        <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+                            <lightning-input
+                                type="time"
+                                label="Heure de début"
+                                value={heureDebut}
+                                onchange={handleHeureDebut}>
+                            </lightning-input>
+                        </div>
+
+                        <!-- Heure de fin -->
+                        <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+                            <lightning-input
+                                type="time"
+                                label="Heure de fin"
+                                value={heureFin}
+                                onchange={handleHeureFin}>
+                            </lightning-input>
                         </div>
 
                         <!-- Statut -->
@@ -239,19 +147,18 @@
                             </lightning-combobox>
                         </div>
 
-                        <!-- Commentaire (pleine largeur) -->
+                        <!-- Commentaire -->
                         <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
                             <lightning-textarea
                                 label="Commentaire"
                                 value={commentaire}
-                                placeholder="Informations complémentaires sur le rendez-vous..."
+                                placeholder="Informations complémentaires..."
                                 onchange={handleCommentaire}>
                             </lightning-textarea>
                         </div>
 
                     </div>
 
-                    <!-- Message d'erreur -->
                     <template if:true={erreur}>
                         <div class="slds-notify slds-notify_alert slds-alert_error slds-m-top_small" role="alert">
                             <span>{erreur}</span>
@@ -259,7 +166,6 @@
                     </template>
                 </div>
 
-                <!-- Footer -->
                 <footer class="slds-modal__footer">
                     <lightning-button
                         label="Annuler"
@@ -279,4 +185,127 @@
         </section>
         <div class="slds-backdrop slds-backdrop_open"></div>
     </template>
+
+    <!-- ══ MODAL : COMPTE RENDU DE RDV (Task standard complétée) ════════════════ -->
+    <template if:true={modalCROuvert}>
+        <section role="dialog" tabindex="-1" aria-modal="true" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+
+                <header class="slds-modal__header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+                            onclick={fermerModalCR}>
+                        <lightning-icon icon-name="utility:close" alternative-text="Fermer" size="small"></lightning-icon>
+                    </button>
+                    <h2 class="slds-modal__title slds-hyphenate">
+                        <lightning-icon icon-name="utility:task" size="small" class="slds-m-right_x-small"></lightning-icon>
+                        Compte rendu — {nomLead}
+                    </h2>
+                </header>
+
+                <div class="slds-modal__content slds-p-around_medium">
+                    <div class="slds-grid slds-wrap slds-gutters">
+
+                        <!-- Date du RDV -->
+                        <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+                            <lightning-input
+                                type="date"
+                                label="Date du RDV"
+                                value={dateRdvCR}
+                                onchange={handleDateRdvCR}>
+                            </lightning-input>
+                        </div>
+
+                        <!-- Type de RDV -->
+                        <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+                            <lightning-combobox
+                                label="Type de rendez-vous"
+                                value={typeRdvCR}
+                                options={typeOptions}
+                                placeholder="Sélectionner"
+                                onchange={handleTypeRdvCR}>
+                            </lightning-combobox>
+                        </div>
+
+                        <!-- Avec qui -->
+                        <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+                            <lightning-input
+                                label="Avec qui"
+                                value={avecQui}
+                                placeholder="Nom du contact rencontré"
+                                onchange={handleAvecQui}>
+                            </lightning-input>
+                        </div>
+
+                        <!-- Intérêt détecté -->
+                        <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+                            <lightning-textarea
+                                label="Intérêt détecté"
+                                value={interetDetecte}
+                                placeholder="Besoins ou intérêts exprimés par le prospect..."
+                                rows="3"
+                                onchange={handleInteretDetecte}>
+                            </lightning-textarea>
+                        </div>
+
+                        <!-- Notes du compte rendu (obligatoire) -->
+                        <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+                            <lightning-textarea
+                                label="Compte rendu *"
+                                value={notesRdv}
+                                placeholder="Résumé de l'échange, points discutés, décisions prises..."
+                                rows="5"
+                                required
+                                onchange={handleNotesRdv}>
+                            </lightning-textarea>
+                        </div>
+
+                        <!-- Prochaine action -->
+                        <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+                            <lightning-input
+                                label="Prochaine action"
+                                value={prochaineAction}
+                                placeholder="Ex : Envoyer une offre commerciale"
+                                onchange={handleProchaineAction}>
+                            </lightning-input>
+                        </div>
+
+                        <!-- Date prochaine action -->
+                        <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+                            <lightning-input
+                                type="date"
+                                label="Date prochaine action"
+                                value={dateProchaineAction}
+                                onchange={handleDateProchaineCR}>
+                            </lightning-input>
+                        </div>
+
+                    </div>
+
+                    <template if:true={erreurCR}>
+                        <div class="slds-notify slds-notify_alert slds-alert_error slds-m-top_small" role="alert">
+                            <span>{erreurCR}</span>
+                        </div>
+                    </template>
+                </div>
+
+                <footer class="slds-modal__footer">
+                    <lightning-button
+                        label="Annuler"
+                        onclick={fermerModalCR}
+                        class="slds-m-right_small">
+                    </lightning-button>
+                    <lightning-button
+                        variant="brand"
+                        label="Enregistrer le compte rendu"
+                        icon-name="utility:save"
+                        onclick={handleSubmitCR}
+                        disabled={chargementCR}>
+                    </lightning-button>
+                </footer>
+
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+
 </template>
