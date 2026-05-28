@@ -1,0 +1,93 @@
+name: Salesforce — Tests Apex & LWC
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'force-app/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'force-app/**'
+
+jobs:
+  # ── 1. Approbation manuelle ────────────────────────────────────────────────
+  # Ce job utilise l'environnement GitHub "test-approval".
+  # Tant qu'aucun reviewer n'approuve dans l'onglet Actions, les jobs suivants
+  # restent en attente (pending). Configurer les reviewers dans :
+  # Settings → Environments → test-approval → Required reviewers.
+  approbation:
+    name: "⏳ En attente d'approbation"
+    runs-on: ubuntu-latest
+    environment: test-approval
+    steps:
+      - name: Approbation accordée
+        run: echo "Approbation reçue — lancement des tests."
+
+  # ── 2. Tests LWC (Jest) ────────────────────────────────────────────────────
+  tests-lwc:
+    name: Tests LWC (Jest)
+    needs: approbation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Installer les dépendances
+        run: npm ci
+
+      - name: Lancer les tests Jest
+        run: npm run test:unit
+
+  # ── 3. Tests Apex (Salesforce org) ────────────────────────────────────────
+  tests-apex:
+    name: Tests Apex (org Salesforce)
+    needs: approbation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Installer Salesforce CLI
+        run: npm install -g @salesforce/cli@latest
+
+      - name: Authentification à l'org
+        # SFDX_AUTH_URL doit être ajouté dans :
+        # Settings → Secrets and variables → Actions → New repository secret
+        # Nom : SFDX_AUTH_URL
+        # Valeur : récupérée via `sf org display --verbose --target-org msavane@upmind.fr.msa --json`
+        run: |
+          echo "${{ secrets.SFDX_AUTH_URL }}" > /tmp/sfdx-auth-url.txt
+          sf org login sfdx-url --sfdx-url-file /tmp/sfdx-auth-url.txt --alias ci-org --set-default
+          rm /tmp/sfdx-auth-url.txt
+
+      - name: Lancer les tests Apex
+        run: |
+          sf apex run test \
+            --target-org ci-org \
+            --test-level RunLocalTests \
+            --wait 20 \
+            --result-format human \
+            --code-coverage
+
+      - name: Vérifier la couverture >= 75%
+        run: |
+          COVERAGE=$(sf apex run test \
+            --target-org ci-org \
+            --test-level RunLocalTests \
+            --wait 20 \
+            --result-format json \
+            --code-coverage 2>/dev/null \
+            | python3 -c "
+          import sys, json
+          data = json.load(sys.stdin)
+          cov = data.get('result', {}).get('summary', {}).get('testRunCoverage', '0%')
+          pct = float(cov.replace('%',''))
+          print(f'Couverture : {cov}')
+          exit(0 if pct >= 75 else 1)
+          ")
+          echo "$COVERAGE"
