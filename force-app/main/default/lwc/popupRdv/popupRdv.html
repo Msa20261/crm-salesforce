@@ -1,311 +1,403 @@
 <template>
-
-    <!-- ══ BANNIÈRE : RDV À ORGANISER ══════════════════════════════════════════ -->
-    <template if:true={afficherBouton}>
-        <div class="rdv-banner slds-m-bottom_small">
-            <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-p-around_small">
-                <div class="slds-col">
-                    <lightning-icon icon-name="utility:event" size="small" class="slds-m-right_x-small"></lightning-icon>
-                    <span class="slds-text-body_regular slds-text-color_default">
-                        Ce lead est prêt pour un rendez-vous
-                    </span>
-                </div>
-                <div class="slds-col slds-shrink">
-                    <lightning-button
-                        variant="brand"
-                        label="Créer le RDV"
-                        icon-name="utility:add"
-                        onclick={ouvrirModal}>
-                    </lightning-button>
-                </div>
-            </div>
+  <!-- ══ BANNIÈRE : RDV À ORGANISER ══════════════════════════════════════════ -->
+  <template if:true={afficherBouton}>
+    <div class="rdv-banner slds-m-bottom_small">
+      <div
+        class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-p-around_small"
+      >
+        <div class="slds-col">
+          <lightning-icon
+            icon-name="utility:event"
+            size="small"
+            class="slds-m-right_x-small"
+          ></lightning-icon>
+          <span class="slds-text-body_regular slds-text-color_default">
+            Ce lead est prêt pour un rendez-vous
+          </span>
         </div>
-    </template>
-
-    <!-- ══ BANNIÈRE : RDV FAIT ══════════════════════════════════════════════════ -->
-    <template if:true={afficherBoutonRdvFait}>
-        <div class="rdv-banner slds-m-bottom_small">
-            <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-p-around_small">
-                <div class="slds-col">
-                    <lightning-icon icon-name="utility:task" size="small" class="slds-m-right_x-small"></lightning-icon>
-                    <span class="slds-text-body_regular slds-text-color_default">
-                        RDV effectué — Saisissez le compte rendu
-                    </span>
-                </div>
-                <div class="slds-col slds-shrink">
-                    <lightning-button
-                        variant="brand"
-                        label="Créer le compte rendu"
-                        icon-name="utility:edit"
-                        onclick={ouvrirModalCR}>
-                    </lightning-button>
-                </div>
-            </div>
+        <div class="slds-col slds-shrink">
+          <lightning-button
+            variant="brand"
+            label="Créer le RDV"
+            icon-name="utility:add"
+            onclick={ouvrirModal}
+          >
+          </lightning-button>
         </div>
-    </template>
+      </div>
+    </div>
+  </template>
 
-    <!-- ══ MODAL : CRÉER UN RDV (Event + Task) ══════════════════════════════════ -->
-    <template if:true={modalOuvert}>
-        <section role="dialog" tabindex="-1" aria-modal="true" class="slds-modal slds-fade-in-open">
-            <div class="slds-modal__container">
+  <!-- ══ BANNIÈRE : RDV FAIT ══════════════════════════════════════════════════ -->
+  <template if:true={afficherBoutonRdvFait}>
+    <div class="rdv-banner slds-m-bottom_small">
+      <div
+        class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-p-around_small"
+      >
+        <div class="slds-col">
+          <lightning-icon
+            icon-name="utility:task"
+            size="small"
+            class="slds-m-right_x-small"
+          ></lightning-icon>
+          <span class="slds-text-body_regular slds-text-color_default">
+            RDV effectué — Saisissez le compte rendu
+          </span>
+        </div>
+        <div class="slds-col slds-shrink">
+          <lightning-button
+            variant="brand"
+            label="Créer le compte rendu"
+            icon-name="utility:edit"
+            onclick={ouvrirModalCR}
+          >
+          </lightning-button>
+        </div>
+      </div>
+    </div>
+  </template>
 
-                <header class="slds-modal__header">
-                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
-                            onclick={fermerModal}>
-                        <lightning-icon icon-name="utility:close" alternative-text="Fermer" size="small"></lightning-icon>
-                    </button>
-                    <h2 class="slds-modal__title slds-hyphenate">
-                        <lightning-icon icon-name="utility:event" size="small" class="slds-m-right_x-small"></lightning-icon>
-                        Créer un rendez-vous — {nomLead}
-                    </h2>
-                </header>
+  <!-- ══ MODAL : CRÉER UN RDV (Event + Task) ══════════════════════════════════ -->
+  <template if:true={modalOuvert}>
+    <section
+      role="dialog"
+      tabindex="-1"
+      aria-modal="true"
+      class="slds-modal slds-fade-in-open"
+    >
+      <div class="slds-modal__container">
+        <header class="slds-modal__header">
+          <button
+            class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+            onclick={fermerModal}
+          >
+            <lightning-icon
+              icon-name="utility:close"
+              alternative-text="Fermer"
+              size="small"
+            ></lightning-icon>
+          </button>
+          <h2 class="slds-modal__title slds-hyphenate">
+            <lightning-icon
+              icon-name="utility:event"
+              size="small"
+              class="slds-m-right_x-small"
+            ></lightning-icon>
+            Créer un rendez-vous — {nomLead}
+          </h2>
+        </header>
 
-                <div class="slds-modal__content slds-p-around_medium">
-                    <div class="slds-grid slds-wrap slds-gutters">
-
-                        <!-- Sujet (pleine largeur) -->
-                        <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
-                            <lightning-input
-                                label="Sujet"
-                                value={sujet}
-                                onchange={handleSujet}
-                                placeholder="Ex : Appel découverte — {nomLead}"
-                                required>
-                            </lightning-input>
-                        </div>
-
-                        <!-- Type de RDV -->
-                        <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
-                            <lightning-combobox
-                                label="Type de rendez-vous"
-                                value={typeRdv}
-                                options={typeOptions}
-                                placeholder="Sélectionner"
-                                onchange={handleType}>
-                            </lightning-combobox>
-                        </div>
-
-                        <!-- Assigné à -->
-                        <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
-                            <lightning-combobox
-                                label="Assigné à"
-                                value={assigneA}
-                                options={users}
-                                placeholder="Sélectionner un utilisateur"
-                                onchange={handleAssigne}>
-                            </lightning-combobox>
-                        </div>
-
-                        <!-- Date -->
-                        <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
-                            <lightning-input
-                                type="date"
-                                label="Date du rendez-vous"
-                                value={dateEcheance}
-                                onchange={handleDate}
-                                required>
-                            </lightning-input>
-                        </div>
-
-                        <!-- Heure de début -->
-                        <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
-                            <lightning-input
-                                type="time"
-                                label="Heure de début"
-                                value={heureDebut}
-                                onchange={handleHeureDebut}>
-                            </lightning-input>
-                        </div>
-
-                        <!-- Heure de fin -->
-                        <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
-                            <lightning-input
-                                type="time"
-                                label="Heure de fin"
-                                value={heureFin}
-                                onchange={handleHeureFin}>
-                            </lightning-input>
-                        </div>
-
-                        <!-- Statut -->
-                        <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
-                            <lightning-combobox
-                                label="Statut"
-                                value={statut}
-                                options={statutOptions}
-                                onchange={handleStatut}>
-                            </lightning-combobox>
-                        </div>
-
-                        <!-- Priorité -->
-                        <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
-                            <lightning-combobox
-                                label="Priorité"
-                                value={priorite}
-                                options={prioriteOptions}
-                                onchange={handlePriorite}>
-                            </lightning-combobox>
-                        </div>
-
-                        <!-- Commentaire -->
-                        <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
-                            <lightning-textarea
-                                label="Commentaire"
-                                value={commentaire}
-                                placeholder="Informations complémentaires..."
-                                onchange={handleCommentaire}>
-                            </lightning-textarea>
-                        </div>
-
-                    </div>
-
-                    <template if:true={erreur}>
-                        <div class="slds-notify slds-notify_alert slds-alert_error slds-m-top_small" role="alert">
-                            <span>{erreur}</span>
-                        </div>
-                    </template>
-                </div>
-
-                <footer class="slds-modal__footer">
-                    <lightning-button
-                        label="Annuler"
-                        onclick={fermerModal}
-                        class="slds-m-right_small">
-                    </lightning-button>
-                    <lightning-button
-                        variant="brand"
-                        label="Créer le rendez-vous"
-                        icon-name="utility:check"
-                        onclick={handleSubmit}
-                        disabled={chargement}>
-                    </lightning-button>
-                </footer>
-
+        <div class="slds-modal__content slds-p-around_medium">
+          <div class="slds-grid slds-wrap slds-gutters">
+            <!-- Sujet (pleine largeur) -->
+            <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+              <lightning-input
+                label="Sujet"
+                value={sujet}
+                onchange={handleSujet}
+                placeholder="Ex : Appel découverte — {nomLead}"
+                required
+              >
+              </lightning-input>
             </div>
-        </section>
-        <div class="slds-backdrop slds-backdrop_open"></div>
-    </template>
 
-    <!-- ══ MODAL : COMPTE RENDU DE RDV (Task standard complétée) ════════════════ -->
-    <template if:true={modalCROuvert}>
-        <section role="dialog" tabindex="-1" aria-modal="true" class="slds-modal slds-fade-in-open">
-            <div class="slds-modal__container">
-
-                <header class="slds-modal__header">
-                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
-                            onclick={fermerModalCR}>
-                        <lightning-icon icon-name="utility:close" alternative-text="Fermer" size="small"></lightning-icon>
-                    </button>
-                    <h2 class="slds-modal__title slds-hyphenate">
-                        <lightning-icon icon-name="utility:task" size="small" class="slds-m-right_x-small"></lightning-icon>
-                        Compte rendu — {nomLead}
-                    </h2>
-                </header>
-
-                <div class="slds-modal__content slds-p-around_medium">
-                    <div class="slds-grid slds-wrap slds-gutters">
-
-                        <!-- Date du RDV -->
-                        <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
-                            <lightning-input
-                                type="date"
-                                label="Date du RDV"
-                                value={dateRdvCR}
-                                onchange={handleDateRdvCR}>
-                            </lightning-input>
-                        </div>
-
-                        <!-- Type de RDV -->
-                        <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
-                            <lightning-combobox
-                                label="Type de rendez-vous"
-                                value={typeRdvCR}
-                                options={typeOptions}
-                                placeholder="Sélectionner"
-                                onchange={handleTypeRdvCR}>
-                            </lightning-combobox>
-                        </div>
-
-                        <!-- Avec qui -->
-                        <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
-                            <lightning-input
-                                label="Avec qui"
-                                value={avecQui}
-                                placeholder="Nom du contact rencontré"
-                                onchange={handleAvecQui}>
-                            </lightning-input>
-                        </div>
-
-                        <!-- Intérêt détecté -->
-                        <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
-                            <lightning-textarea
-                                label="Intérêt détecté"
-                                value={interetDetecte}
-                                placeholder="Besoins ou intérêts exprimés par le prospect..."
-                                rows="3"
-                                onchange={handleInteretDetecte}>
-                            </lightning-textarea>
-                        </div>
-
-                        <!-- Notes du compte rendu (obligatoire) -->
-                        <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
-                            <lightning-textarea
-                                label="Compte rendu *"
-                                value={notesRdv}
-                                placeholder="Résumé de l'échange, points discutés, décisions prises..."
-                                rows="5"
-                                required
-                                onchange={handleNotesRdv}>
-                            </lightning-textarea>
-                        </div>
-
-                        <!-- Prochaine action -->
-                        <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
-                            <lightning-input
-                                label="Prochaine action"
-                                value={prochaineAction}
-                                placeholder="Ex : Envoyer une offre commerciale"
-                                onchange={handleProchaineAction}>
-                            </lightning-input>
-                        </div>
-
-                        <!-- Date prochaine action -->
-                        <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
-                            <lightning-input
-                                type="date"
-                                label="Date prochaine action"
-                                value={dateProchaineAction}
-                                onchange={handleDateProchaineCR}>
-                            </lightning-input>
-                        </div>
-
-                    </div>
-
-                    <template if:true={erreurCR}>
-                        <div class="slds-notify slds-notify_alert slds-alert_error slds-m-top_small" role="alert">
-                            <span>{erreurCR}</span>
-                        </div>
-                    </template>
-                </div>
-
-                <footer class="slds-modal__footer">
-                    <lightning-button
-                        label="Annuler"
-                        onclick={fermerModalCR}
-                        class="slds-m-right_small">
-                    </lightning-button>
-                    <lightning-button
-                        variant="brand"
-                        label="Enregistrer le compte rendu"
-                        icon-name="utility:save"
-                        onclick={handleSubmitCR}
-                        disabled={chargementCR}>
-                    </lightning-button>
-                </footer>
-
+            <!-- Type de RDV -->
+            <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+              <lightning-combobox
+                label="Type de rendez-vous"
+                value={typeRdv}
+                options={typeOptions}
+                placeholder="Sélectionner"
+                onchange={handleType}
+              >
+              </lightning-combobox>
             </div>
-        </section>
-        <div class="slds-backdrop slds-backdrop_open"></div>
-    </template>
 
+            <!-- Assigné à -->
+            <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+              <lightning-combobox
+                label="Assigné à"
+                value={assigneA}
+                options={users}
+                placeholder="Sélectionner un utilisateur"
+                onchange={handleAssigne}
+              >
+              </lightning-combobox>
+            </div>
+
+            <!-- Date -->
+            <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+              <lightning-input
+                type="date"
+                label="Date du rendez-vous"
+                value={dateEcheance}
+                onchange={handleDate}
+                required
+              >
+              </lightning-input>
+            </div>
+
+            <!-- Heure de début -->
+            <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+              <lightning-input
+                type="time"
+                label="Heure de début"
+                value={heureDebut}
+                onchange={handleHeureDebut}
+              >
+              </lightning-input>
+            </div>
+
+            <!-- Heure de fin -->
+            <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+              <lightning-input
+                type="time"
+                label="Heure de fin"
+                value={heureFin}
+                onchange={handleHeureFin}
+              >
+              </lightning-input>
+            </div>
+
+            <!-- Statut -->
+            <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+              <lightning-combobox
+                label="Statut"
+                value={statut}
+                options={statutOptions}
+                onchange={handleStatut}
+              >
+              </lightning-combobox>
+            </div>
+
+            <!-- Priorité -->
+            <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+              <lightning-combobox
+                label="Priorité"
+                value={priorite}
+                options={prioriteOptions}
+                onchange={handlePriorite}
+              >
+              </lightning-combobox>
+            </div>
+
+            <!-- Commentaire -->
+            <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+              <lightning-textarea
+                label="Commentaire"
+                value={commentaire}
+                placeholder="Informations complémentaires..."
+                onchange={handleCommentaire}
+              >
+              </lightning-textarea>
+            </div>
+          </div>
+
+          <template if:true={erreur}>
+            <div
+              class="slds-notify slds-notify_alert slds-alert_error slds-m-top_small"
+              role="alert"
+            >
+              <span>{erreur}</span>
+            </div>
+          </template>
+        </div>
+
+        <footer class="slds-modal__footer">
+          <lightning-button
+            label="Annuler"
+            onclick={fermerModal}
+            class="slds-m-right_small"
+          >
+          </lightning-button>
+          <lightning-button
+            variant="brand"
+            label="Créer le rendez-vous"
+            icon-name="utility:check"
+            onclick={handleSubmit}
+            disabled={chargement}
+          >
+          </lightning-button>
+        </footer>
+      </div>
+    </section>
+    <div class="slds-backdrop slds-backdrop_open"></div>
+  </template>
+
+  <!-- ══ MODAL : COMPTE RENDU DE RDV (Task standard complétée) ════════════════ -->
+  <template if:true={modalCROuvert}>
+    <section
+      role="dialog"
+      tabindex="-1"
+      aria-modal="true"
+      class="slds-modal slds-fade-in-open"
+    >
+      <div class="slds-modal__container">
+        <header class="slds-modal__header">
+          <button
+            class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+            onclick={fermerModalCR}
+          >
+            <lightning-icon
+              icon-name="utility:close"
+              alternative-text="Fermer"
+              size="small"
+            ></lightning-icon>
+          </button>
+          <h2 class="slds-modal__title slds-hyphenate">
+            <lightning-icon
+              icon-name="utility:task"
+              size="small"
+              class="slds-m-right_x-small"
+            ></lightning-icon>
+            Compte rendu — {nomLead}
+          </h2>
+        </header>
+
+        <div class="slds-modal__content slds-p-around_medium">
+          <div class="slds-grid slds-wrap slds-gutters">
+            <!-- Titre du RDV original (pré-rempli, lecture seule) -->
+            <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+              <lightning-input
+                label="Titre du rendez-vous"
+                value={titreRdvOriginal}
+                readonly
+              >
+              </lightning-input>
+            </div>
+
+            <!-- Date du RDV -->
+            <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+              <lightning-input
+                type="date"
+                label="Date du RDV"
+                value={dateRdvCR}
+                onchange={handleDateRdvCR}
+              >
+              </lightning-input>
+            </div>
+
+            <!-- Heure de début -->
+            <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+              <lightning-input
+                type="time"
+                label="Heure de début"
+                value={heureDebutCR}
+                readonly
+              >
+              </lightning-input>
+            </div>
+
+            <!-- Heure de fin -->
+            <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+              <lightning-input
+                type="time"
+                label="Heure de fin"
+                value={heureFinCR}
+                readonly
+              >
+              </lightning-input>
+            </div>
+
+            <!-- Type de RDV -->
+            <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+              <lightning-combobox
+                label="Type de rendez-vous"
+                value={typeRdvCR}
+                options={typeOptions}
+                placeholder="Sélectionner"
+                onchange={handleTypeRdvCR}
+              >
+              </lightning-combobox>
+            </div>
+
+            <!-- Avec qui -->
+            <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+              <lightning-input
+                label="Avec qui"
+                value={avecQui}
+                placeholder="Nom du contact rencontré"
+                onchange={handleAvecQui}
+              >
+              </lightning-input>
+            </div>
+
+            <!-- Intérêt détecté -->
+            <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+              <lightning-textarea
+                label="Intérêt détecté"
+                value={interetDetecte}
+                placeholder="Besoins ou intérêts exprimés par le prospect..."
+                rows="3"
+                onchange={handleInteretDetecte}
+              >
+              </lightning-textarea>
+            </div>
+
+            <!-- Notes du compte rendu (obligatoire) -->
+            <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+              <lightning-textarea
+                label="Compte rendu *"
+                value={notesRdv}
+                placeholder="Résumé de l'échange, points discutés, décisions prises..."
+                rows="5"
+                required
+                onchange={handleNotesRdv}
+              >
+              </lightning-textarea>
+            </div>
+
+            <!-- Prochaine action -->
+            <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+              <lightning-input
+                label="Prochaine action"
+                value={prochaineAction}
+                placeholder="Ex : Envoyer une offre commerciale"
+                onchange={handleProchaineAction}
+              >
+              </lightning-input>
+            </div>
+
+            <!-- Date prochaine action -->
+            <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+              <lightning-input
+                type="date"
+                label="Date prochaine action"
+                value={dateProchaineAction}
+                onchange={handleDateProchaineCR}
+              >
+              </lightning-input>
+            </div>
+          </div>
+
+          <template if:true={erreurCR}>
+            <div
+              class="slds-notify slds-notify_alert slds-alert_error slds-m-top_small"
+              role="alert"
+            >
+              <span>{erreurCR}</span>
+            </div>
+          </template>
+        </div>
+
+        <footer class="slds-modal__footer">
+          <lightning-button
+            label="Annuler"
+            onclick={fermerModalCR}
+            class="slds-m-right_small"
+          >
+          </lightning-button>
+          <lightning-button
+            variant="brand"
+            label="Enregistrer le compte rendu"
+            icon-name="utility:save"
+            onclick={handleSubmitCR}
+            disabled={chargementCR}
+          >
+          </lightning-button>
+        </footer>
+      </div>
+    </section>
+    <div class="slds-backdrop slds-backdrop_open"></div>
+  </template>
 </template>
