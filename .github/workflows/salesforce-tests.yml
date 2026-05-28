@@ -11,21 +11,9 @@ on:
       - 'force-app/**'
 
 jobs:
-  # ── 1. Approbation manuelle ────────────────────────────────────────────────
-  # Le workflow se met en pause ici jusqu'à approbation dans l'onglet Actions.
-  # Configurer dans : Settings → Environments → test-approval → Required reviewers.
-  approbation:
-    name: "⏳ En attente d'approbation"
-    runs-on: ubuntu-latest
-    environment: test-approval
-    steps:
-      - name: Approbation accordée
-        run: echo "Approbation reçue — lancement des tests."
-
-  # ── 2. Tests LWC (Jest) ────────────────────────────────────────────────────
+  # ── Tests LWC (Jest) ───────────────────────────────────────────────────────
   tests-lwc:
     name: Tests LWC (Jest)
-    needs: approbation
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -42,10 +30,9 @@ jobs:
       - name: Lancer les tests Jest
         run: npm run test:unit
 
-  # ── 3. Tests Apex (Salesforce org) ────────────────────────────────────────
+  # ── Tests Apex (Salesforce org) ────────────────────────────────────────────
   tests-apex:
     name: Tests Apex (org Salesforce)
-    needs: approbation
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
