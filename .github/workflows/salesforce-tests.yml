@@ -11,20 +11,57 @@ on:
       - 'force-app/**'
 
 jobs:
-  # ── 1. Approbation manuelle ────────────────────────────────────────────────
+  # ── 1. Notification email ──────────────────────────────────────────────────
+  # Envoie un email aux deux adresses avec le lien d'approbation direct.
+  # Secrets requis : GMAIL_USERNAME et GMAIL_APP_PASSWORD
+  notify:
+    name: "📧 Email de demande d'approbation"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Envoyer l'email d'approbation
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 587
+          secure: false
+          username: ${{ secrets.GMAIL_USERNAME }}
+          password: ${{ secrets.GMAIL_APP_PASSWORD }}
+          subject: "[CRM Salesforce] Approbation requise — ${{ github.ref_name }} (${{ github.actor }})"
+          to: msavane@upmind.fr,msavane225@gmail.com
+          from: "CRM Salesforce CI <${{ secrets.GMAIL_USERNAME }}>"
+          html_body: |
+            <h2>Approbation requise avant de lancer les tests</h2>
+            <table style="font-family:sans-serif;font-size:14px;border-collapse:collapse">
+              <tr><td style="padding:4px 12px 4px 0"><strong>Branche</strong></td><td>${{ github.ref_name }}</td></tr>
+              <tr><td style="padding:4px 12px 4px 0"><strong>Commit</strong></td><td><code>${{ github.sha }}</code></td></tr>
+              <tr><td style="padding:4px 12px 4px 0"><strong>Auteur</strong></td><td>${{ github.actor }}</td></tr>
+              <tr><td style="padding:4px 12px 4px 0"><strong>Message</strong></td><td>${{ github.event.head_commit.message }}</td></tr>
+            </table>
+            <br>
+            <a href="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+               style="background:#1f6feb;color:#fff;padding:10px 20px;border-radius:6px;text-decoration:none;font-family:sans-serif;font-weight:bold">
+              Approuver les tests sur GitHub
+            </a>
+            <br><br>
+            <small style="color:#888">
+              Ce lien ouvre la page GitHub Actions du workflow en cours.
+              Cliquez sur <strong>Review pending deployments</strong> puis <strong>Approve and deploy</strong>.
+            </small>
+
+  # ── 2. Approbation manuelle ────────────────────────────────────────────────
   # Ce job utilise l'environnement GitHub "test-approval".
-  # Tant qu'aucun reviewer n'approuve dans l'onglet Actions, les jobs suivants
-  # restent en attente (pending). Configurer les reviewers dans :
-  # Settings → Environments → test-approval → Required reviewers.
+  # Le workflow est mis en pause ici jusqu'à approbation manuelle dans Actions.
+  # Configurer dans : Settings → Environments → test-approval → Required reviewers.
   approbation:
     name: "⏳ En attente d'approbation"
+    needs: notify
     runs-on: ubuntu-latest
     environment: test-approval
     steps:
       - name: Approbation accordée
         run: echo "Approbation reçue — lancement des tests."
 
-  # ── 2. Tests LWC (Jest) ────────────────────────────────────────────────────
+  # ── 3. Tests LWC (Jest) ────────────────────────────────────────────────────
   tests-lwc:
     name: Tests LWC (Jest)
     needs: approbation
@@ -44,7 +81,7 @@ jobs:
       - name: Lancer les tests Jest
         run: npm run test:unit
 
-  # ── 3. Tests Apex (Salesforce org) ────────────────────────────────────────
+  # ── 4. Tests Apex (Salesforce org) ────────────────────────────────────────
   tests-apex:
     name: Tests Apex (org Salesforce)
     needs: approbation
@@ -56,10 +93,6 @@ jobs:
         run: npm install -g @salesforce/cli@latest
 
       - name: Authentification à l'org
-        # SFDX_AUTH_URL doit être ajouté dans :
-        # Settings → Secrets and variables → Actions → New repository secret
-        # Nom : SFDX_AUTH_URL
-        # Valeur : récupérée via `sf org display --verbose --target-org msavane@upmind.fr.msa --json`
         run: |
           echo "${{ secrets.SFDX_AUTH_URL }}" > /tmp/sfdx-auth-url.txt
           sf org login sfdx-url --sfdx-url-file /tmp/sfdx-auth-url.txt --alias ci-org --set-default
@@ -76,7 +109,7 @@ jobs:
 
       - name: Vérifier la couverture >= 75%
         run: |
-          COVERAGE=$(sf apex run test \
+          sf apex run test \
             --target-org ci-org \
             --test-level RunLocalTests \
             --wait 20 \
@@ -89,5 +122,4 @@ jobs:
           pct = float(cov.replace('%',''))
           print(f'Couverture : {cov}')
           exit(0 if pct >= 75 else 1)
-          ")
-          echo "$COVERAGE"
+          "
