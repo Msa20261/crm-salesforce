@@ -20,3 +20,4 @@ public class NominatimMock implements HttpCalloutMock {
         return res;
     }
 }
+
