@@ -91,14 +91,16 @@ public with sharing class RdvController {
     String dateProchaineAction
   ) {
     String nomLead = '';
+    Lead leadRec = null;
     if (leadId != null) {
-      Lead l = [
-        SELECT FirstName, LastName
+      leadRec = [
+        SELECT FirstName, LastName, Email
         FROM Lead
         WHERE Id = :leadId
         LIMIT 1
       ];
-      nomLead = ((l.FirstName != null ? l.FirstName + ' ' : '') + l.LastName)
+      nomLead = ((leadRec.FirstName != null ? leadRec.FirstName + ' ' : '') +
+        leadRec.LastName)
         .trim();
     }
 
@@ -127,6 +129,12 @@ public with sharing class RdvController {
     cr.ActivityDate = Date.today();
     cr.Description = String.join(parts, '\n\n');
     insert cr;
+
+    try {
+      envoyerEmailRecapCR(leadRec, typeRdv);
+    } catch (Exception e) {
+      System.debug('Envoi email récap CR échoué : ' + e.getMessage());
+    }
 
     return cr.Id;
   }
@@ -188,23 +196,7 @@ public with sharing class RdvController {
     String dateFormatee = dateRdv.format();
     String horaire = heureDebut + ' – ' + heureFin;
     String sujetEmail = 'RDV planifié : ' + sujet + ' — ' + dateFormatee;
-
-    List<OrgWideEmailAddress> oweaList = [
-      SELECT Id, Address
-      FROM OrgWideEmailAddress
-      WHERE IsAllowAllProfiles = TRUE
-      ORDER BY Address
-      LIMIT 5
-    ];
-    Id oweaId = null;
-    for (OrgWideEmailAddress o : oweaList) {
-      if (o.Address.contains('upmind.fr')) {
-        oweaId = o.Id;
-        break;
-      }
-    }
-    if (oweaId == null && !oweaList.isEmpty())
-      oweaId = oweaList[0].Id;
+    Id oweaId = getOweaUpmindId();
 
     // Emails aux utilisateurs (assigné + créateur)
     Set<Id> userIds = new Set<Id>();
@@ -324,6 +316,75 @@ public with sharing class RdvController {
 
     if (!emails.isEmpty())
       Messaging.sendEmail(emails);
+  }
+
+  // ─── EMAIL RÉCAP CR AU LEAD (sans les notes internes) ──────────────────────
+
+  private static void envoyerEmailRecapCR(Lead leadRec, String typeRdv) {
+    if (leadRec == null || leadRec.Email == null)
+      return;
+
+    String prenom = leadRec.FirstName != null
+      ? leadRec.FirstName
+      : leadRec.LastName;
+    String dateFormatee = Date.today().format();
+    Id oweaId = getOweaUpmindId();
+
+    String html =
+      htmlEntete('Récapitulatif de notre rendez-vous') +
+      '<p style="color:#333;font-size:16px;margin-top:0;">Bonjour ' +
+      prenom +
+      ',</p>' +
+      '<p style="color:#555;">Nous vous remercions pour le temps accordé lors de notre échange.</p>' +
+      '<div style="background:#f4f6f9;border-left:4px solid #1B3A6B;padding:16px;margin:24px 0;border-radius:0 4px 4px 0;">' +
+      '<p style="margin:6px 0;color:#333;"><strong>Date :</strong> ' +
+      dateFormatee +
+      '</p>' +
+      (String.isNotBlank(typeRdv)
+        ? '<p style="margin:6px 0;color:#333;"><strong>Type :</strong> ' +
+          typeRdv +
+          '</p>'
+        : '') +
+      '</div>' +
+      '<p style="color:#555;">Notre équipe reviendra vers vous prochainement. N\'hésitez pas à nous contacter pour toute question.</p>' +
+      '<p style="color:#555;margin-bottom:0;">Cordialement,<br><strong>L\'équipe Upmind</strong></p>' +
+      htmlPied();
+
+    Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
+    if (oweaId != null)
+      mail.setOrgWideEmailAddressId(oweaId);
+    mail.setToAddresses(new List<String>{ leadRec.Email });
+    mail.setSubject('Récapitulatif de notre rendez-vous');
+    mail.setHtmlBody(html);
+    mail.setPlainTextBody(
+      'Bonjour ' +
+        prenom +
+        ',\n\nNous vous remercions pour le temps accordé lors de notre échange.' +
+        '\n\nDate : ' +
+        dateFormatee +
+        (String.isNotBlank(typeRdv) ? '\nType : ' + typeRdv : '') +
+        '\n\nNotre équipe reviendra vers vous prochainement.' +
+        '\n\nCordialement,\nL\'équipe Upmind'
+    );
+    Messaging.sendEmail(new List<Messaging.SingleEmailMessage>{ mail });
+  }
+
+  // ─── ORG-WIDE EMAIL ADDRESS (préférence upmind.fr) ─────────────────────────
+
+  private static Id getOweaUpmindId() {
+    List<OrgWideEmailAddress> oweaList = [
+      SELECT Id, Address
+      FROM OrgWideEmailAddress
+      WHERE IsAllowAllProfiles = TRUE
+      ORDER BY Address
+      LIMIT 5
+    ];
+    for (OrgWideEmailAddress o : oweaList) {
+      if (o.Address.contains('upmind.fr')) {
+        return o.Id;
+      }
+    }
+    return oweaList.isEmpty() ? null : oweaList[0].Id;
   }
 
   // ─── TEMPLATES EMAIL ───────────────────────────────────────────────────────
