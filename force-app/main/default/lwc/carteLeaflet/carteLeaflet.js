@@ -3,11 +3,11 @@ import { loadScript, loadStyle } from "lightning/platformResourceLoader";
 import LEAFLET from "@salesforce/resourceUrl/Leaflet_Zip";
 import MARKERCLUSTER from "@salesforce/resourceUrl/MarkerCluster_Zip";
 
-// Couleur de la punaise selon l'étape — vert = gagné, rouge = perdu, orange = en cours
+// Couleur de la punaise selon l'étape — vert = gagné, rouge = perdu, jaune = en cours
 function couleurEtape(stageName) {
   if (stageName === "Closed Won") return "#2E7D32";
   if (stageName === "Closed Lost") return "#C62828";
-  return "#E65100";
+  return "#FBC02D";
 }
 
 // Punaise SVG générée en code (pas de fichier image à héberger)
