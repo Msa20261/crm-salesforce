@@ -2,6 +2,15 @@ public with sharing class ConsumptionTriggerHandler {
   // Seuil : alerte si le solde restant tombe sous 20% du montant acheté
   private static final Decimal SEUIL_PROVISION_PCT = 20;
 
+  // Filtre les adresses invalides (ex: emails masqués par Salesforce sur les
+  // sandbox, format user@<orgId>) qui feraient échouer tout l'envoi groupé
+  private static final Pattern EMAIL_PATTERN = Pattern.compile(
+    '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$'
+  );
+  private static Boolean estEmailValide(String email) {
+    return email != null && EMAIL_PATTERN.matcher(email).matches();
+  }
+
   public static void handleAfterInsertUpdate(
     List<Consumption__c> consumptions
   ) {
@@ -493,7 +502,7 @@ public with sharing class ConsumptionTriggerHandler {
     String name,
     String message
   ) {
-    if (email == null)
+    if (!estEmailValide(email))
       return;
     if (!emailsMap.containsKey(email)) {
       emailsMap.put(email, new List<String>());
@@ -590,8 +599,9 @@ public with sharing class ConsumptionTriggerHandler {
         emails.add(mail);
       }
 
+      // allOrNone=false : une adresse invalide ne doit pas bloquer les autres envois
       if (!emails.isEmpty())
-        Messaging.sendEmail(emails);
+        Messaging.sendEmail(emails, false);
     } catch (Exception e) {
       System.debug('Envoi email alerte échoué : ' + e.getMessage());
     }

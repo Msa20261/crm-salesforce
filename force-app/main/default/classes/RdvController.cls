@@ -1,4 +1,13 @@
 public with sharing class RdvController {
+  // Filtre les adresses invalides (ex: emails masqués par Salesforce sur les
+  // sandbox, format user@<orgId>) qui feraient échouer tout l'envoi groupé
+  private static final Pattern EMAIL_PATTERN = Pattern.compile(
+    '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$'
+  );
+  private static Boolean estEmailValide(String email) {
+    return email != null && EMAIL_PATTERN.matcher(email).matches();
+  }
+
   // ─── CRÉER RDV : Event (calendrier) + Task (reminder) ─────────────────────
 
   @AuraEnabled
@@ -211,7 +220,7 @@ public with sharing class RdvController {
         FROM User
         WHERE Id IN :userIds AND IsActive = TRUE
       ]) {
-        if (u.Email == null)
+        if (!estEmailValide(u.Email))
           continue;
         Boolean estAssigne = (u.Id == assigneId);
         Boolean estCreateur = (u.Id == createurId);
@@ -268,7 +277,7 @@ public with sharing class RdvController {
     }
 
     // Email de confirmation au lead
-    if (leadRec != null && leadRec.Email != null) {
+    if (leadRec != null && estEmailValide(leadRec.Email)) {
       String prenom = leadRec.FirstName != null
         ? leadRec.FirstName
         : leadRec.LastName;
@@ -314,14 +323,15 @@ public with sharing class RdvController {
       emails.add(mailLead);
     }
 
+    // allOrNone=false : une adresse invalide ne doit pas bloquer les autres envois
     if (!emails.isEmpty())
-      Messaging.sendEmail(emails);
+      Messaging.sendEmail(emails, false);
   }
 
   // ─── EMAIL RÉCAP CR AU LEAD (sans les notes internes) ──────────────────────
 
   private static void envoyerEmailRecapCR(Lead leadRec, String typeRdv) {
-    if (leadRec == null || leadRec.Email == null)
+    if (leadRec == null || !estEmailValide(leadRec.Email))
       return;
 
     String prenom = leadRec.FirstName != null

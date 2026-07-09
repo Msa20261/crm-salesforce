@@ -3,6 +3,15 @@ public with sharing class ContractExpirationAlertScheduler implements Schedulabl
   private static final Integer PREAVIS_JOURS = 60;
   private static final Integer IMMINENTE_JOURS = 30;
 
+  // Filtre les adresses invalides (ex: emails masqués par Salesforce sur les
+  // sandbox, format user@<orgId>) qui feraient échouer tout l'envoi groupé
+  private static final Pattern EMAIL_PATTERN = Pattern.compile(
+    '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$'
+  );
+  private static Boolean estEmailValide(String email) {
+    return email != null && EMAIL_PATTERN.matcher(email).matches();
+  }
+
   public void execute(SchedulableContext ctx) {
     verifierEcheances();
   }
@@ -192,7 +201,7 @@ public with sharing class ContractExpirationAlertScheduler implements Schedulabl
     String name,
     String message
   ) {
-    if (email == null)
+    if (!estEmailValide(email))
       return;
     if (!emailsMap.containsKey(email)) {
       emailsMap.put(email, new List<String>());
@@ -287,8 +296,9 @@ public with sharing class ContractExpirationAlertScheduler implements Schedulabl
         emails.add(mail);
       }
 
+      // allOrNone=false : une adresse invalide ne doit pas bloquer les autres envois
       if (!emails.isEmpty())
-        Messaging.sendEmail(emails);
+        Messaging.sendEmail(emails, false);
     } catch (Exception e) {
       System.debug(
         'Envoi email alerte fin de contrat échoué : ' + e.getMessage()
