@@ -162,6 +162,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>Contract_Line__c.Norme_Consommation_30j__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>Contract.Date_Debut_Token__c</field>
         <readable>true</readable>
     </fieldPermissions>

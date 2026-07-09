@@ -17,6 +17,8 @@
         >false</default><label>Préavis fin de contrat (60j)</label></value>
             <value><fullName>Fin_Contrat_Imminente</fullName><default
         >false</default><label>Fin de contrat imminente (30j)</label></value>
+            <value><fullName>Norme_30j_Depassee</fullName><default
+        >false</default><label>Norme 30 jours dépassée</label></value>
         </valueSetDefinition>
     </valueSet>
     <required>false</required>
