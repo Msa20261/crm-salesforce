@@ -101,11 +101,13 @@ public with sharing class ConsumptionTriggerHandler {
       contractLineToConso30j.put((Id) ar.get('cl'), (Decimal) ar.get('total'));
     }
 
-    // Tous les utilisateurs actifs de l'org reçoivent aussi les emails d'alerte consommation
+    // Tous les utilisateurs actifs avec une adresse @upmind.fr reçoivent aussi les emails d'alerte
+    // (exclut les comptes système/guest/intégration et les adresses masquées par le sandbox,
+    // ex: user@upmind.fr.invalid ou user@<orgId> — LIKE '%@upmind.fr' exige une fin de chaîne exacte)
     List<User> usersActifs = [
       SELECT Id, Name, Email
       FROM User
-      WHERE IsActive = TRUE AND Email != NULL
+      WHERE IsActive = TRUE AND Email LIKE '%@upmind.fr'
     ];
 
     // Récupère les contacts (avec email) associés aux comptes
