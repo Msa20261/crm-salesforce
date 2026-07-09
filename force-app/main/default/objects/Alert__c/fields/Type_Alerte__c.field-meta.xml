@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Type_Alerte__c</fullName>
     <label>Type d'alerte</label>
@@ -7,9 +7,16 @@
         <restricted>true</restricted>
         <valueSetDefinition>
             <sorted>false</sorted>
-            <value><fullName>Surfacturation</fullName><default>false</default><label>Surfacturation</label></value>
-            <value><fullName>Provision_Depassee</fullName><default>false</default><label>Provision dépassée</label></value>
-            <value><fullName>Consommation_Anormale</fullName><default>false</default><label>Consommation anormale</label></value>
+            <value><fullName>Surfacturation</fullName><default
+        >false</default><label>Surfacturation</label></value>
+            <value><fullName>Provision_Depassee</fullName><default
+        >false</default><label>Provision dépassée</label></value>
+            <value><fullName>Consommation_Anormale</fullName><default
+        >false</default><label>Consommation anormale</label></value>
+            <value><fullName>Preavis_Fin_Contrat</fullName><default
+        >false</default><label>Préavis fin de contrat (60j)</label></value>
+            <value><fullName>Fin_Contrat_Imminente</fullName><default
+        >false</default><label>Fin de contrat imminente (30j)</label></value>
         </valueSetDefinition>
     </valueSet>
     <required>false</required>

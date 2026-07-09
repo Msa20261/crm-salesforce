@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Contract__c</fullName>
+    <label>Contrat</label>
+    <type>Lookup</type>
+    <referenceTo>Contract</referenceTo>
+    <relationshipLabel>Alertes</relationshipLabel>
+    <relationshipName>Alerts</relationshipName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <required>false</required>
+    <description
+  >Contrat concerné par l&apos;alerte, pour les alertes qui ne sont pas liées à une ligne de contrat précise (ex: fin de contrat).</description>
+</CustomField>
