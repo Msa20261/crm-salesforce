@@ -1,0 +1,97 @@
+<template>
+  <div class="quarterly-wrapper">
+    <!-- HEADER -->
+    <div class="panel-header">
+      <div class="header-left">
+        <div class="header-icon">
+          <lightning-icon
+            icon-name="utility:date_time"
+            size="small"
+          ></lightning-icon>
+        </div>
+        <h2 class="panel-title">Consommation sur 12 mois</h2>
+      </div>
+    </div>
+
+    <!-- LOADING -->
+    <template if:true={isLoading}>
+      <div class="loading-wrap">
+        <lightning-spinner
+          alternative-text="Chargement"
+          size="small"
+        ></lightning-spinner>
+      </div>
+    </template>
+
+    <!-- ERREUR -->
+    <template if:true={erreur}>
+      <div class="error-state">
+        <lightning-icon icon-name="utility:error" size="small"></lightning-icon>
+        <span>Impossible de charger la consommation trimestrielle.</span>
+      </div>
+    </template>
+
+    <template if:false={isLoading}>
+      <template if:true={hasDonnees}>
+        <!-- KPI ROW -->
+        <div class="kpi-row">
+          <div class="kpi-mini">
+            <span class="kpi-val">{totalAchete}</span>
+            <span class="kpi-lbl">Budget sur 12 mois</span>
+          </div>
+          <div class="kpi-mini">
+            <span class="kpi-val kpi-conso">{totalConso}</span>
+            <span class="kpi-lbl">Consommé</span>
+          </div>
+          <div class="kpi-mini">
+            <span class="kpi-val kpi-restant">{totalRestant}</span>
+            <span class="kpi-lbl">Restant</span>
+          </div>
+          <div class="kpi-mini">
+            <span class={pctGlobalClass}>{pctGlobal}%</span>
+            <span class="kpi-lbl">Taux global</span>
+          </div>
+        </div>
+
+        <!-- TRIMESTRES -->
+        <div class="quarterly-list">
+          <template for:each={trimestres} for:item="t">
+            <div key={t.key} class="trimestre-row">
+              <div class="trimestre-header">
+                <div class="trimestre-info">
+                  <span class="trimestre-name">{t.label}</span>
+                  <span class="trimestre-dates">{t.periodeLabel}</span>
+                </div>
+                <div class="trimestre-amounts">
+                  <span class="amount-conso">{t.consoFormatee}</span>
+                  <span class="amount-sep">/</span>
+                  <span class="amount-achete">{t.acheteFormate}</span>
+                </div>
+              </div>
+              <div class="bar-track">
+                <div class="bar-fill" style={t.barStyle}></div>
+              </div>
+              <div class="trimestre-footer">
+                <span class="restant-label">Restant : {t.restantFormate}</span>
+                <span class={t.cssPct}>{t.pct}%</span>
+              </div>
+            </div>
+          </template>
+        </div>
+      </template>
+
+      <template if:false={hasDonnees}>
+        <div class="vide-state">
+          <lightning-icon
+            icon-name="utility:insert_tag_field"
+            size="medium"
+          ></lightning-icon>
+          <p class="vide-titre">Aucune consommation sur 12 mois</p>
+          <p class="vide-sub">
+            Aucun relevé enregistré sur cette période pour cette ligne.
+          </p>
+        </div>
+      </template>
+    </template>
+  </div>
+</template>

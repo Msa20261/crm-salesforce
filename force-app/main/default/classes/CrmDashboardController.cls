@@ -46,6 +46,69 @@ public with sharing class CrmDashboardController {
     ];
   }
 
+  // ── CONSOMMATION TRIMESTRIELLE (12 derniers mois) ────────────────────────
+
+  public class TrimestreInfo {
+    @AuraEnabled
+    public Date debut;
+    @AuraEnabled
+    public Date fin;
+    @AuraEnabled
+    public Decimal achete;
+    @AuraEnabled
+    public Decimal consomme;
+    @AuraEnabled
+    public Decimal restant;
+  }
+
+  @AuraEnabled(cacheable=true)
+  public static List<TrimestreInfo> getConsommationTrimestrielle(
+    Id contractLineId
+  ) {
+    Date aujourdhui = Date.today();
+    Date debutHistorique = aujourdhui.addMonths(-12);
+
+    List<Consumption__c> consos = [
+      SELECT Periode_Debut__c, Montant_Achete__c, Montant_Consomme__c
+      FROM Consumption__c
+      WHERE
+        Contract_Line__c = :contractLineId
+        AND Periode_Debut__c != NULL
+        AND Periode_Debut__c >= :debutHistorique
+    ];
+
+    // 4 trimestres glissants sur les 12 derniers mois, du plus ancien au plus récent
+    Integer[] moisDebuts = new List<Integer>{ 12, 9, 6, 3 };
+    Integer[] moisFins = new List<Integer>{ 9, 6, 3, 0 };
+    List<TrimestreInfo> resultats = new List<TrimestreInfo>();
+
+    for (Integer idx = 0; idx < 4; idx++) {
+      Date debutBucket = aujourdhui.addMonths(-moisDebuts[idx]);
+      Date finBucket = aujourdhui.addMonths(-moisFins[idx]);
+
+      Decimal achete = 0;
+      Decimal consomme = 0;
+      for (Consumption__c c : consos) {
+        if (
+          c.Periode_Debut__c >= debutBucket &&
+          c.Periode_Debut__c < finBucket
+        ) {
+          achete += c.Montant_Achete__c != null ? c.Montant_Achete__c : 0;
+          consomme += c.Montant_Consomme__c != null ? c.Montant_Consomme__c : 0;
+        }
+      }
+
+      TrimestreInfo t = new TrimestreInfo();
+      t.debut = debutBucket;
+      t.fin = finBucket;
+      t.achete = achete;
+      t.consomme = consomme;
+      t.restant = achete - consomme;
+      resultats.add(t);
+    }
+    return resultats;
+  }
+
   // ── CONTRACT SUMMARY ──────────────────────────────────────────────────────
 
   @AuraEnabled(cacheable=true)
