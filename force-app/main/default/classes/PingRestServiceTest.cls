@@ -19,5 +19,9 @@ private class PingRestServiceTest {
       body.contains('"status":"ok"'),
       'La reponse doit contenir status ok'
     );
+    System.assert(
+      body.contains('"message":"Ping CRM Upmind Salesforce reussi"'),
+      'La reponse doit contenir un message caracteristique'
+    );
   }
 }
