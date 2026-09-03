@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ExtlClntAppConfigurablePolicies
+  xmlns="http://soap.sforce.com/2006/04/metadata"
+>
+    <externalClientApplication>Ludwig_Token_Sync</externalClientApplication>
+    <isEnabled>true</isEnabled>
+    <isOauthPluginEnabled>true</isOauthPluginEnabled>
+    <label>Ludwig_Token_Sync_plcy</label>
+    <startPage>None</startPage>
+</ExtlClntAppConfigurablePolicies>

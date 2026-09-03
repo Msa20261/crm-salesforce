@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Identifiant_Externe__c</fullName>
-    <label>Identifiant externe (plateforme tokens)</label>
-    <type>Text</type>
-    <length>50</length>
-    <externalId>true</externalId>
-    <unique>true</unique>
     <caseSensitive>false</caseSensitive>
-    <required>false</required>
     <description
   >Identifiant du compte cote plateforme externe de suivi des tokens (ex: Ludwig), utilise pour rattacher automatiquement les donnees recues via TokenConsumptionRestService.</description>
+    <externalId>true</externalId>
+    <label>Identifiant externe (plateforme tokens)</label>
+    <length>50</length>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <type>Text</type>
+    <unique>true</unique>
 </CustomField>

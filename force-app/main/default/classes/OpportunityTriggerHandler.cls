@@ -1,123 +1,141 @@
 public class OpportunityTriggerHandler {
+  private static Boolean isRunning = false;
 
-    private static Boolean isRunning = false;
+  // Copie l'adresse de facturation du Compte associé vers le champ adresse__c de l'Opportunité
+  public static void handleBeforeInsertUpdate(List<Opportunity> opps) {
+    Set<Id> accountIds = new Set<Id>();
+    for (Opportunity opp : opps) {
+      if (opp.AccountId != null)
+        accountIds.add(opp.AccountId);
+    }
+    if (accountIds.isEmpty())
+      return;
 
-    // Copie l'adresse de facturation du Compte associé vers le champ adresse__c de l'Opportunité
-    public static void handleBeforeInsertUpdate(List<Opportunity> opps) {
-        Set<Id> accountIds = new Set<Id>();
-        for (Opportunity opp : opps) {
-            if (opp.AccountId != null) accountIds.add(opp.AccountId);
-        }
-        if (accountIds.isEmpty()) return;
+    Map<Id, Account> comptes = new Map<Id, Account>(
+      [
+        SELECT Id, BillingStreet, BillingCity, BillingPostalCode
+        FROM Account
+        WHERE Id IN :accountIds
+      ]
+    );
 
-        Map<Id, Account> comptes = new Map<Id, Account>([
-            SELECT Id, BillingStreet, BillingCity, BillingPostalCode
-            FROM Account
-            WHERE Id IN :accountIds
-        ]);
+    for (Opportunity opp : opps) {
+      if (opp.AccountId == null)
+        continue;
+      Account compte = comptes.get(opp.AccountId);
+      if (compte == null)
+        continue;
+      if (compte.BillingCity == null && compte.BillingStreet == null)
+        continue;
 
-        for (Opportunity opp : opps) {
-            if (opp.AccountId == null) continue;
-            Account compte = comptes.get(opp.AccountId);
-            if (compte == null) continue;
-            if (compte.BillingCity == null && compte.BillingStreet == null) continue;
+      opp.adresse__Street__s = compte.BillingStreet;
+      opp.adresse__City__s = compte.BillingCity;
+      opp.adresse__PostalCode__s = compte.BillingPostalCode;
+    }
+  }
 
-            opp.adresse__Street__s     = compte.BillingStreet;
-            opp.adresse__City__s       = compte.BillingCity;
-            opp.adresse__PostalCode__s = compte.BillingPostalCode;
-        }
+  public static void handleAfterUpdate(
+    List<Opportunity> newOpps,
+    Map<Id, Opportunity> oldMap
+  ) {
+    if (isRunning)
+      return;
+
+    // Sélectionner uniquement les Opportunités qui passent en Closed Won
+    List<Opportunity> closedWonOpps = new List<Opportunity>();
+    for (Opportunity opp : newOpps) {
+      if (
+        opp.StageName == 'Closed Won' &&
+        oldMap.get(opp.Id).StageName != 'Closed Won'
+      ) {
+        closedWonOpps.add(opp);
+      }
     }
 
-    public static void handleAfterUpdate(List<Opportunity> newOpps, Map<Id, Opportunity> oldMap) {
-        if (isRunning) return;
+    if (closedWonOpps.isEmpty())
+      return;
 
-        // Sélectionner uniquement les Opportunités qui passent en Closed Won
-        List<Opportunity> closedWonOpps = new List<Opportunity>();
-        for (Opportunity opp : newOpps) {
-            if (opp.StageName == 'Closed Won' && oldMap.get(opp.Id).StageName != 'Closed Won') {
-                closedWonOpps.add(opp);
-            }
-        }
+    creerContrats(closedWonOpps);
+  }
 
-        if (closedWonOpps.isEmpty()) return;
+  private static void creerContrats(List<Opportunity> opps) {
+    // Récupérer les produits de chaque Opportunité
+    Set<Id> oppIds = new Set<Id>();
+    for (Opportunity opp : opps)
+      oppIds.add(opp.Id);
 
-        creerContrats(closedWonOpps);
+    Map<Id, List<OpportunityLineItem>> oliParOpp = new Map<Id, List<OpportunityLineItem>>();
+    for (OpportunityLineItem oli : [
+      SELECT Id, OpportunityId, Product2Id, UnitPrice, Quantity, TotalPrice
+      FROM OpportunityLineItem
+      WHERE OpportunityId IN :oppIds
+    ]) {
+      if (!oliParOpp.containsKey(oli.OpportunityId)) {
+        oliParOpp.put(oli.OpportunityId, new List<OpportunityLineItem>());
+      }
+      oliParOpp.get(oli.OpportunityId).add(oli);
     }
 
-    private static void creerContrats(List<Opportunity> opps) {
-
-        // Récupérer les produits de chaque Opportunité
-        Set<Id> oppIds = new Set<Id>();
-        for (Opportunity opp : opps) oppIds.add(opp.Id);
-
-        Map<Id, List<OpportunityLineItem>> oliParOpp = new Map<Id, List<OpportunityLineItem>>();
-        for (OpportunityLineItem oli : [
-            SELECT Id, OpportunityId, Product2Id, UnitPrice, Quantity, TotalPrice
-            FROM OpportunityLineItem
-            WHERE OpportunityId IN :oppIds
-        ]) {
-            if (!oliParOpp.containsKey(oli.OpportunityId)) {
-                oliParOpp.put(oli.OpportunityId, new List<OpportunityLineItem>());
-            }
-            oliParOpp.get(oli.OpportunityId).add(oli);
-        }
-
-        // Créer les Contrats
-        List<Contract> contrats = new List<Contract>();
-        for (Opportunity opp : opps) {
-            Contract c = new Contract();
-            c.AccountId      = opp.AccountId;
-            c.Opportunity__c = opp.Id;
-            c.Name           = opp.Name;
-            c.StartDate      = opp.CloseDate != null ? opp.CloseDate : Date.today();
-            c.ContractTerm   = 12;
-            c.Status         = 'Draft';
-            c.OwnerId        = opp.OwnerId;
-            contrats.add(c);
-        }
-        insert contrats;
-
-        // Associer chaque Opportunité à son Contrat créé
-        Map<Id, Id> oppVersContrat = new Map<Id, Id>();
-        for (Integer i = 0; i < opps.size(); i++) {
-            oppVersContrat.put(opps[i].Id, contrats[i].Id);
-        }
-
-        // Stamper ContractId (standard) + Contrat_Associe__c (custom) sur chaque Opportunité
-        List<Opportunity> oppsToUpdate = new List<Opportunity>();
-        for (Integer i = 0; i < opps.size(); i++) {
-            oppsToUpdate.add(new Opportunity(
-                Id                 = opps[i].Id,
-                ContractId         = contrats[i].Id,
-                Contrat_Associe__c = contrats[i].Id
-            ));
-        }
-        isRunning = true;
-        try {
-            update oppsToUpdate;
-        } finally {
-            isRunning = false;
-        }
-
-        // Créer les Lignes de Contrat — snapshot figé des produits
-        List<Contract_Line__c> lignes = new List<Contract_Line__c>();
-        for (Opportunity opp : opps) {
-            Id contratId = oppVersContrat.get(opp.Id);
-            List<OpportunityLineItem> olis = oliParOpp.get(opp.Id);
-            if (olis == null) continue;
-
-            for (OpportunityLineItem oli : olis) {
-                Contract_Line__c ligne = new Contract_Line__c();
-                ligne.Contract__c               = contratId;
-                ligne.Opportunity_Line_Item__c  = oli.Id;
-                ligne.Produit__c                = oli.Product2Id;
-                ligne.Prix_Unitaire__c          = oli.UnitPrice;
-                ligne.Quantite__c               = oli.Quantity;
-                ligne.Montant__c                = oli.TotalPrice;
-                lignes.add(ligne);
-            }
-        }
-
-        if (!lignes.isEmpty()) insert lignes;
+    // Créer les Contrats
+    List<Contract> contrats = new List<Contract>();
+    for (Opportunity opp : opps) {
+      Contract c = new Contract();
+      c.AccountId = opp.AccountId;
+      c.Opportunity__c = opp.Id;
+      c.Name = opp.Name;
+      c.StartDate = opp.CloseDate != null ? opp.CloseDate : Date.today();
+      c.ContractTerm = 12;
+      c.Status = 'Draft';
+      c.OwnerId = opp.OwnerId;
+      contrats.add(c);
     }
+    insert contrats;
+
+    // Associer chaque Opportunité à son Contrat créé
+    Map<Id, Id> oppVersContrat = new Map<Id, Id>();
+    for (Integer i = 0; i < opps.size(); i++) {
+      oppVersContrat.put(opps[i].Id, contrats[i].Id);
+    }
+
+    // Stamper ContractId (standard) + Contrat_Associe__c (custom) sur chaque Opportunité
+    List<Opportunity> oppsToUpdate = new List<Opportunity>();
+    for (Integer i = 0; i < opps.size(); i++) {
+      oppsToUpdate.add(
+        new Opportunity(
+          Id = opps[i].Id,
+          ContractId = contrats[i].Id,
+          Contrat_Associe__c = contrats[i].Id
+        )
+      );
+    }
+    isRunning = true;
+    try {
+      update oppsToUpdate;
+    } finally {
+      isRunning = false;
+    }
+
+    // Créer les Lignes de Contrat — snapshot figé des produits
+    List<Contract_Line__c> lignes = new List<Contract_Line__c>();
+    for (Opportunity opp : opps) {
+      Id contratId = oppVersContrat.get(opp.Id);
+      List<OpportunityLineItem> olis = oliParOpp.get(opp.Id);
+      if (olis == null)
+        continue;
+
+      for (OpportunityLineItem oli : olis) {
+        Contract_Line__c ligne = new Contract_Line__c();
+        ligne.Contract__c = contratId;
+        ligne.Opportunity_Line_Item__c = oli.Id;
+        ligne.Produit__c = oli.Product2Id;
+        ligne.Prix_Unitaire__c = oli.UnitPrice;
+        ligne.Quantite__c = oli.Quantity;
+        ligne.Montant__c = oli.TotalPrice;
+        lignes.add(ligne);
+      }
+    }
+
+    if (!lignes.isEmpty())
+      insert lignes;
+  }
 }

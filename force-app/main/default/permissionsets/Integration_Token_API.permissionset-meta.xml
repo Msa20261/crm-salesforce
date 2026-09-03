@@ -1,76 +1,81 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
-    <label>Integration API Consommation Tokens</label>
-    <description
-  >Acces pour l'utilisateur Run As du External Client App exposant TokenConsumptionRestService (recuperation des tokens clients depuis la plateforme externe).</description>
     <classAccesses>
         <apexClass>TokenConsumptionRestService</apexClass>
         <enabled>true</enabled>
     </classAccesses>
-    <objectPermissions>
-        <object>Consumption__c</object>
-        <allowCreate>true</allowCreate>
-        <allowRead>true</allowRead>
-        <allowEdit>true</allowEdit>
-        <allowDelete>false</allowDelete>
-        <modifyAllRecords>false</modifyAllRecords>
-        <viewAllRecords>true</viewAllRecords>
-    </objectPermissions>
-    <objectPermissions>
-        <object>Account</object>
-        <allowCreate>false</allowCreate>
-        <allowRead>true</allowRead>
-        <allowEdit>false</allowEdit>
-        <allowDelete>false</allowDelete>
-        <modifyAllRecords>false</modifyAllRecords>
-        <viewAllRecords>true</viewAllRecords>
-    </objectPermissions>
-    <objectPermissions>
-        <object>Contract</object>
-        <allowCreate>false</allowCreate>
-        <allowRead>true</allowRead>
-        <allowEdit>false</allowEdit>
-        <allowDelete>false</allowDelete>
-        <modifyAllRecords>false</modifyAllRecords>
-        <viewAllRecords>true</viewAllRecords>
-    </objectPermissions>
-    <objectPermissions>
-        <object>Contract_Line__c</object>
-        <allowCreate>false</allowCreate>
-        <allowRead>true</allowRead>
-        <allowEdit>false</allowEdit>
-        <allowDelete>false</allowDelete>
-        <modifyAllRecords>false</modifyAllRecords>
-        <viewAllRecords>true</viewAllRecords>
-    </objectPermissions>
+    <description
+  >Acces pour l&apos;utilisateur Run As du External Client App exposant TokenConsumptionRestService (recuperation des tokens clients depuis la plateforme externe).</description>
     <fieldPermissions>
+        <editable>false</editable>
         <field>Account.Identifiant_Externe__c</field>
         <readable>true</readable>
-        <editable>false</editable>
     </fieldPermissions>
     <fieldPermissions>
-        <field>Consumption__c.Montant_Consomme__c</field>
-        <readable>true</readable>
         <editable>true</editable>
-    </fieldPermissions>
-    <fieldPermissions>
         <field>Consumption__c.Montant_Achete__c</field>
         <readable>true</readable>
-        <editable>true</editable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>true</editable>
+        <field>Consumption__c.Montant_Consomme__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>Consumption__c.Periode_Debut__c</field>
         <readable>true</readable>
-        <editable>true</editable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>true</editable>
         <field>Consumption__c.Periode_Fin__c</field>
         <readable>true</readable>
-        <editable>true</editable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>true</editable>
         <field>Consumption__c.Source__c</field>
         <readable>true</readable>
-        <editable>true</editable>
     </fieldPermissions>
+    <hasActivationRequired>false</hasActivationRequired>
+    <label>Integration API Consommation Tokens</label>
+    <objectPermissions>
+        <allowCreate>false</allowCreate>
+        <allowDelete>false</allowDelete>
+        <allowEdit>false</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
+        <object>Account</object>
+        <viewAllFields>false</viewAllFields>
+        <viewAllRecords>true</viewAllRecords>
+    </objectPermissions>
+    <objectPermissions>
+        <allowCreate>true</allowCreate>
+        <allowDelete>false</allowDelete>
+        <allowEdit>true</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
+        <object>Consumption__c</object>
+        <viewAllFields>false</viewAllFields>
+        <viewAllRecords>true</viewAllRecords>
+    </objectPermissions>
+    <objectPermissions>
+        <allowCreate>false</allowCreate>
+        <allowDelete>false</allowDelete>
+        <allowEdit>false</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
+        <object>Contract</object>
+        <viewAllFields>false</viewAllFields>
+        <viewAllRecords>true</viewAllRecords>
+    </objectPermissions>
+    <objectPermissions>
+        <allowCreate>false</allowCreate>
+        <allowDelete>false</allowDelete>
+        <allowEdit>false</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
+        <object>Contract_Line__c</object>
+        <viewAllFields>false</viewAllFields>
+        <viewAllRecords>true</viewAllRecords>
+    </objectPermissions>
 </PermissionSet>
