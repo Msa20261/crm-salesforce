@@ -3,3 +3,15 @@
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 16px;
 }
+
+.kpi-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fdecea;
+  color: #e45b5b;
+  border-radius: 12px;
+  padding: 14px 18px;
+  font-size: 13px;
+  font-family: "Salesforce Sans", Arial, sans-serif;
+}

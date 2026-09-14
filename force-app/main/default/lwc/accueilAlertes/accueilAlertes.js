@@ -4,10 +4,18 @@ import getMesAlertes from "@salesforce/apex/AccueilController.getMesAlertes";
 
 export default class AccueilAlertes extends NavigationMixin(LightningElement) {
   alertes = [];
+  erreur = false;
 
   @wire(getMesAlertes)
-  wiredAlertes({ data }) {
-    if (data) this.alertes = data;
+  wiredAlertes({ data, error }) {
+    if (data) {
+      this.alertes = data;
+      this.erreur = false;
+    } else if (error) {
+      this.erreur = true;
+      // eslint-disable-next-line no-console
+      console.error("Erreur AccueilController.getMesAlertes", error);
+    }
   }
 
   naviguerAlerte(event) {

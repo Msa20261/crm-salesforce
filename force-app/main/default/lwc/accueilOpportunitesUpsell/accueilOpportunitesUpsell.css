@@ -1,6 +1,7 @@
 :host {
   --blue-dark: #032d60;
   --blue-mid: #0070d2;
+  --red: #e45b5b;
   --gray-text: #6b7a99;
   --gray-border: #e5eaf0;
   --white: #ffffff;
@@ -83,6 +84,14 @@
 .widget-empty {
   font-size: 13px;
   color: var(--gray-text);
+  text-align: center;
+  padding: 20px 0;
+  margin: 0;
+}
+
+.widget-error {
+  font-size: 13px;
+  color: var(--red);
   text-align: center;
   padding: 20px 0;
   margin: 0;

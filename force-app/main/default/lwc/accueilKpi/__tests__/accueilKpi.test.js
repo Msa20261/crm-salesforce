@@ -35,4 +35,16 @@ describe("c-accueil-kpi", () => {
     expect(cartes[3].value).toBe(2);
     expect(cartes[4].value).toBe(1);
   });
+
+  it("affiche un message d'erreur si le wire échoue", async () => {
+    const element = createElement("c-accueil-kpi", { is: AccueilKpi });
+    document.body.appendChild(element);
+
+    getKPIAdapter.error({ message: "Erreur serveur" });
+    await Promise.resolve();
+
+    const erreur = element.shadowRoot.querySelector(".kpi-error");
+    expect(erreur).not.toBeNull();
+    expect(element.shadowRoot.querySelectorAll("c-kpi-card").length).toBe(0);
+  });
 });

@@ -10,10 +10,18 @@ export default class AccueilKpi extends NavigationMixin(LightningElement) {
     comptesRendus: 0,
     contrats: 0
   };
+  erreur = false;
 
   @wire(getKPI)
-  wiredKpi({ data }) {
-    if (data) this.kpi = data;
+  wiredKpi({ data, error }) {
+    if (data) {
+      this.kpi = data;
+      this.erreur = false;
+    } else if (error) {
+      this.erreur = true;
+      // eslint-disable-next-line no-console
+      console.error("Erreur AccueilController.getKPI", error);
+    }
   }
 
   naviguerLeads() {

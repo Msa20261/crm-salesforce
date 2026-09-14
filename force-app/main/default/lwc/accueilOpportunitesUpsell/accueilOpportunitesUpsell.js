@@ -6,10 +6,18 @@ export default class AccueilOpportunitesUpsell extends NavigationMixin(
   LightningElement
 ) {
   opportunites = [];
+  erreur = false;
 
   @wire(getOpportunitesUpsell)
-  wiredOpportunites({ data }) {
-    if (data) this.opportunites = data;
+  wiredOpportunites({ data, error }) {
+    if (data) {
+      this.opportunites = data;
+      this.erreur = false;
+    } else if (error) {
+      this.erreur = true;
+      // eslint-disable-next-line no-console
+      console.error("Erreur AccueilController.getOpportunitesUpsell", error);
+    }
   }
 
   naviguerOpportunite(event) {

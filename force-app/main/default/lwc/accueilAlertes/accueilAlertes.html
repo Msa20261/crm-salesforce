@@ -7,35 +7,42 @@
       ></lightning-icon>
       <span>Alertes sur mes comptes/contrats</span>
     </div>
-    <template if:true={alertes.length}>
-      <ul class="widget-list">
-        <template for:each={alertes} for:item="alerte">
-          <li
-            key={alerte.id}
-            class="widget-item"
-            data-id={alerte.id}
-            onclick={naviguerAlerte}
-          >
-            <div class="widget-badge" data-type={alerte.type}>
-              {alerte.type}
-            </div>
-            <div class="widget-item-body">
-              <span class="widget-item-titre">{alerte.compte}</span>
-              <span class="widget-item-meta">{alerte.message}</span>
-            </div>
-            <lightning-icon
-              icon-name="utility:chevronright"
-              size="x-small"
-              class="widget-item-arrow"
-            ></lightning-icon>
-          </li>
-        </template>
-      </ul>
-    </template>
-    <template if:false={alertes.length}>
-      <p class="widget-empty">
-        Aucune alerte active sur vos comptes ou contrats.
+    <template if:true={erreur}>
+      <p class="widget-error">
+        Impossible de charger les alertes. Réessayez plus tard.
       </p>
+    </template>
+    <template if:false={erreur}>
+      <template if:true={alertes.length}>
+        <ul class="widget-list">
+          <template for:each={alertes} for:item="alerte">
+            <li
+              key={alerte.id}
+              class="widget-item"
+              data-id={alerte.id}
+              onclick={naviguerAlerte}
+            >
+              <div class="widget-badge" data-type={alerte.type}>
+                {alerte.type}
+              </div>
+              <div class="widget-item-body">
+                <span class="widget-item-titre">{alerte.compte}</span>
+                <span class="widget-item-meta">{alerte.message}</span>
+              </div>
+              <lightning-icon
+                icon-name="utility:chevronright"
+                size="x-small"
+                class="widget-item-arrow"
+              ></lightning-icon>
+            </li>
+          </template>
+        </ul>
+      </template>
+      <template if:false={alertes.length}>
+        <p class="widget-empty">
+          Aucune alerte active sur vos comptes ou contrats.
+        </p>
+      </template>
     </template>
   </div>
 </template>

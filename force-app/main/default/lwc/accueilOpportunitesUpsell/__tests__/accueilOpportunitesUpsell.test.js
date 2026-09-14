@@ -46,4 +46,17 @@ describe("c-accueil-opportunites-upsell", () => {
     const items = element.shadowRoot.querySelectorAll(".widget-item");
     expect(items.length).toBe(1);
   });
+
+  it("affiche un message d'erreur si le wire échoue", async () => {
+    const element = createElement("c-accueil-opportunites-upsell", {
+      is: AccueilOpportunitesUpsell
+    });
+    document.body.appendChild(element);
+
+    getOpportunitesUpsellAdapter.error({ message: "Erreur serveur" });
+    await Promise.resolve();
+
+    const erreur = element.shadowRoot.querySelector(".widget-error");
+    expect(erreur).not.toBeNull();
+  });
 });

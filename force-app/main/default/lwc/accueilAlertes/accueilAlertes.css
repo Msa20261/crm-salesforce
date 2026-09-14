@@ -102,3 +102,11 @@
   padding: 20px 0;
   margin: 0;
 }
+
+.widget-error {
+  font-size: 13px;
+  color: var(--red);
+  text-align: center;
+  padding: 20px 0;
+  margin: 0;
+}
