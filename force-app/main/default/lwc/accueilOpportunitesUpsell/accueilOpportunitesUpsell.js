@@ -29,8 +29,13 @@ export default class AccueilOpportunitesUpsell extends NavigationMixin(
       id: o.id,
       nom: o.nom,
       meta: `${o.compte} · ${o.stage}`,
-      trailing: `${o.montant} €`
+      trailing: `${this.formaterMontant(o.montant)} €`
     }));
+  }
+
+  formaterMontant(montant) {
+    const nombre = Number(montant);
+    return Number.isNaN(nombre) ? montant : nombre.toLocaleString("fr-FR");
   }
 
   naviguerOpportunite(event) {

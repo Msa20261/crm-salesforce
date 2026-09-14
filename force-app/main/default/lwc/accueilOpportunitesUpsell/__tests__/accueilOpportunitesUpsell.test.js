@@ -13,7 +13,7 @@ const MOCK_OPPORTUNITES = [
     nom: "Upsell Acme",
     compte: "Acme Corp",
     stage: "Negotiation",
-    montant: "5000"
+    montant: "100000"
   }
 ];
 
@@ -50,7 +50,7 @@ describe("c-accueil-opportunites-upsell", () => {
     expect(items.length).toBe(1);
     expect(items[0].title).toBe("Upsell Acme");
     expect(items[0].meta).toBe("Acme Corp · Negotiation");
-    expect(items[0].trailing).toBe("5000 €");
+    expect(items[0].trailing).toBe(`${(100000).toLocaleString("fr-FR")} €`);
   });
 
   it("indique au widget-card une erreur si le wire échoue", async () => {
