@@ -3,6 +3,24 @@ import AccueilOpportunitesUpsell from "c/accueilOpportunitesUpsell";
 import getOpportunitesUpsell from "@salesforce/apex/AccueilController.getOpportunitesUpsell";
 import { registerApexTestWireAdapter } from "@salesforce/wire-service-jest-util";
 
+// Le stub par défaut de lightning/navigation devient en lecture seule dès
+// qu'un composant est instancié (le moteur LWC scelle le prototype), ce qui
+// empêche jest.restoreAllMocks() (appelé automatiquement en fin de fichier)
+// de fonctionner avec un jest.spyOn classique. On remplace donc le module
+// par un mock dédié dont le [Navigate] délègue simplement à mockNavigate.
+const mockNavigate = jest.fn();
+jest.mock("lightning/navigation", () => {
+  const Navigate = Symbol("Navigate");
+  const NavigationMixin = (Base) =>
+    class extends Base {
+      [Navigate](...args) {
+        mockNavigate(...args);
+      }
+    };
+  NavigationMixin.Navigate = Navigate;
+  return { NavigationMixin };
+});
+
 const getOpportunitesUpsellAdapter = registerApexTestWireAdapter(
   getOpportunitesUpsell
 );
@@ -22,6 +40,7 @@ describe("c-accueil-opportunites-upsell", () => {
     while (document.body.firstChild) {
       document.body.removeChild(document.body.firstChild);
     }
+    mockNavigate.mockClear();
   });
 
   it("indique au widget-card qu'il n'y a aucune opportunité", () => {
@@ -64,5 +83,22 @@ describe("c-accueil-opportunites-upsell", () => {
 
     const carte = element.shadowRoot.querySelector("c-widget-card");
     expect(carte.erreur).toBe(true);
+  });
+
+  it("navigue vers l'enregistrement de l'opportunité au clic", async () => {
+    const element = createElement("c-accueil-opportunites-upsell", {
+      is: AccueilOpportunitesUpsell
+    });
+    document.body.appendChild(element);
+
+    getOpportunitesUpsellAdapter.emit(MOCK_OPPORTUNITES);
+    await Promise.resolve();
+
+    element.shadowRoot.querySelector("c-widget-item").click();
+
+    expect(mockNavigate).toHaveBeenCalledWith({
+      type: "standard__recordPage",
+      attributes: { recordId: "006002", actionName: "view" }
+    });
   });
 });
