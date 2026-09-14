@@ -1,0 +1,104 @@
+:host {
+  --blue-dark: #032d60;
+  --blue-mid: #0070d2;
+  --red: #e45b5b;
+  --gray-text: #6b7a99;
+  --gray-border: #e5eaf0;
+  --white: #ffffff;
+  --radius-md: 12px;
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.widget-card {
+  background: var(--white);
+  border-radius: var(--radius-md);
+  padding: 22px 24px;
+  border: 1px solid var(--gray-border);
+  box-shadow: var(--shadow-sm);
+  font-family: "Salesforce Sans", Arial, sans-serif;
+}
+.widget-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--blue-dark);
+  margin-bottom: 14px;
+}
+
+.widget-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.widget-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 0;
+  border-bottom: 1px solid #f3f6fb;
+  cursor: pointer;
+  border-radius: 8px;
+  transition:
+    background 0.15s,
+    padding-left 0.15s;
+}
+.widget-item:last-child {
+  border-bottom: none;
+}
+.widget-item:hover {
+  background: #f7f9fc;
+  padding-left: 8px;
+}
+
+.widget-badge {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 30px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  letter-spacing: 0.3px;
+  background: #fdecea;
+  color: var(--red);
+}
+
+.widget-item-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+.widget-item-titre {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--blue-dark);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.widget-item-meta {
+  font-size: 12px;
+  color: var(--gray-text);
+  margin-top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.widget-item-arrow {
+  color: #c8d0e0;
+  flex-shrink: 0;
+}
+.widget-item:hover .widget-item-arrow {
+  color: var(--blue-mid);
+}
+
+.widget-empty {
+  font-size: 13px;
+  color: var(--gray-text);
+  text-align: center;
+  padding: 20px 0;
+  margin: 0;
+}

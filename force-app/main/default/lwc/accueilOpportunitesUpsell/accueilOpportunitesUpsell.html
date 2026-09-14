@@ -1,0 +1,34 @@
+<template>
+  <div class="widget-card">
+    <div class="widget-header">
+      <lightning-icon
+        icon-name="standard:opportunity"
+        size="x-small"
+      ></lightning-icon>
+      <span>Opportunités sur comptes sous contrat actif</span>
+    </div>
+    <template if:true={opportunites.length}>
+      <ul class="widget-list">
+        <template for:each={opportunites} for:item="opp">
+          <li
+            key={opp.id}
+            class="widget-item"
+            data-id={opp.id}
+            onclick={naviguerOpportunite}
+          >
+            <div class="widget-item-body">
+              <span class="widget-item-titre">{opp.nom}</span>
+              <span class="widget-item-meta">{opp.compte} · {opp.stage}</span>
+            </div>
+            <span class="widget-item-montant">{opp.montant} €</span>
+          </li>
+        </template>
+      </ul>
+    </template>
+    <template if:false={opportunites.length}>
+      <p class="widget-empty">
+        Aucune opportunité ouverte sur un compte sous contrat actif.
+      </p>
+    </template>
+  </div>
+</template>

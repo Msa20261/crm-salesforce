@@ -23,12 +23,18 @@ public with sharing class AccueilController {
         AND Status != 'Completed'
         AND ActivityDate = TODAY
     ];
+    Integer nbComptesRendus = [
+      SELECT COUNT()
+      FROM Compte_Rendu_RDV__c
+      WHERE Date_RDV__c >= :debutMois
+    ];
 
     Map<String, Integer> kpi = new Map<String, Integer>();
     kpi.put('leads', nbLeads);
     kpi.put('opportunites', nbOpps);
     kpi.put('contrats', nbContrats);
     kpi.put('taches', nbTaches);
+    kpi.put('comptesRendus', nbComptesRendus);
     return kpi;
   }
 
@@ -72,6 +78,86 @@ public with sharing class AccueilController {
     }
 
     return activites;
+  }
+
+  // ===== ALERTES SUR MES COMPTES/CONTRATS =====
+  @AuraEnabled(cacheable=true)
+  public static List<Map<String, String>> getMesAlertes() {
+    Id uid = UserInfo.getUserId();
+    List<Map<String, String>> alertes = new List<Map<String, String>>();
+
+    for (Alert__c al : [
+      SELECT
+        Id,
+        Type_Alerte__c,
+        Message__c,
+        Date_Alerte__c,
+        Contract__c,
+        Contract__r.Account.Name,
+        Contract_Line__c,
+        Contract_Line__r.Contract__r.Account.Name
+      FROM Alert__c
+      WHERE
+        Statut__c = 'Nouvelle'
+        AND (Contract__r.OwnerId = :uid
+        OR Contract__r.Account.OwnerId = :uid
+        OR Contract_Line__r.Contract__r.OwnerId = :uid
+        OR Contract_Line__r.Contract__r.Account.OwnerId = :uid)
+      ORDER BY Date_Alerte__c DESC
+      LIMIT 5
+    ]) {
+      Map<String, String> m = new Map<String, String>();
+      m.put('id', al.Id);
+      m.put('type', al.Type_Alerte__c);
+      m.put('message', al.Message__c);
+      m.put(
+        'date',
+        al.Date_Alerte__c != null ? String.valueOf(al.Date_Alerte__c) : ''
+      );
+      m.put(
+        'compte',
+        al.Contract__c != null
+          ? al.Contract__r.Account.Name
+          : al.Contract_Line__r.Contract__r.Account.Name
+      );
+      alertes.add(m);
+    }
+
+    return alertes;
+  }
+
+  // ===== OPPORTUNITES OUVERTES SUR COMPTES SOUS CONTRAT ACTIF (UPSELL) =====
+  @AuraEnabled(cacheable=true)
+  public static List<Map<String, String>> getOpportunitesUpsell() {
+    List<Map<String, String>> opps = new List<Map<String, String>>();
+
+    for (Opportunity o : [
+      SELECT Id, Name, StageName, Amount, Account.Name
+      FROM Opportunity
+      WHERE
+        OwnerId = :UserInfo.getUserId()
+        AND IsClosed = FALSE
+        AND AccountId IN (
+          SELECT AccountId
+          FROM Contract
+          WHERE Status = 'Activated'
+        )
+      ORDER BY CloseDate ASC
+      LIMIT 5
+    ]) {
+      Map<String, String> m = new Map<String, String>();
+      m.put('id', o.Id);
+      m.put('nom', o.Name);
+      m.put('compte', o.Account.Name);
+      m.put('stage', o.StageName);
+      m.put(
+        'montant',
+        o.Amount != null ? String.valueOf(o.Amount.setScale(0)) : '0'
+      );
+      opps.add(m);
+    }
+
+    return opps;
   }
 
   // ===== TACHES DU JOUR =====

@@ -1,0 +1,149 @@
+:host {
+  --white: #ffffff;
+}
+
+.hero-section {
+  position: relative;
+  background: linear-gradient(135deg, #0176d3 0%, #032d60 60%, #010d3e 100%);
+  border-radius: 18px;
+  padding: 44px 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 8px 32px rgba(0, 112, 210, 0.25);
+  overflow: hidden;
+  font-family: "Salesforce Sans", Arial, sans-serif;
+}
+
+.hero-bg-circle {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  pointer-events: none;
+}
+.hero-circle-1 {
+  width: 320px;
+  height: 320px;
+  top: -100px;
+  right: -60px;
+}
+.hero-circle-2 {
+  width: 180px;
+  height: 180px;
+  bottom: -60px;
+  right: 200px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.hero-content {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  position: relative;
+  z-index: 1;
+}
+
+.avatar-wrapper {
+  position: relative;
+}
+.avatar {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 50%;
+  padding: 18px;
+  backdrop-filter: blur(4px);
+}
+.avatar-ring {
+  position: absolute;
+  inset: -5px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  animation: pulse-ring 2.5s ease-in-out infinite;
+}
+@keyframes pulse-ring {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 0.2;
+  }
+}
+
+.hero-text {
+  color: var(--white);
+}
+.bonjour-label {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.65);
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  font-weight: 600;
+}
+.nom-utilisateur {
+  font-size: 36px;
+  font-weight: 800;
+  color: var(--white);
+  margin: 6px 0 12px;
+  line-height: 1.1;
+}
+.sous-titre {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.85);
+  margin: 0 0 14px;
+  line-height: 1.7;
+  max-width: 480px;
+}
+.hero-quote {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-left: 3px solid rgba(255, 255, 255, 0.35);
+  border-radius: 0 8px 8px 0;
+  padding: 10px 16px;
+  max-width: 480px;
+  backdrop-filter: blur(4px);
+}
+.quote-icon {
+  font-size: 20px;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.35);
+  font-family: Georgia, serif;
+  flex-shrink: 0;
+}
+.quote-text {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.65);
+  font-style: italic;
+  line-height: 1.6;
+}
+
+.hero-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+  position: relative;
+  z-index: 1;
+}
+.date-badge {
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(8px);
+  color: var(--white);
+  padding: 10px 20px;
+  border-radius: 30px;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  white-space: nowrap;
+}
+.hero-tagline {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.55);
+  letter-spacing: 0.3px;
+}

@@ -1,0 +1,101 @@
+:host {
+  --blue-dark: #032d60;
+  --blue-mid: #0070d2;
+  --orange: #f4a623;
+  --green: #4bca81;
+  --red: #e45b5b;
+  --purple: #8e44ad;
+  --gray-text: #6b7a99;
+  --gray-border: #e5eaf0;
+  --white: #ffffff;
+  --radius-md: 12px;
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.kpi-card {
+  background: var(--white);
+  border-radius: var(--radius-md);
+  padding: 22px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  border: 1px solid var(--gray-border);
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+}
+.kpi-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+
+.kpi-icon-wrap {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.kpi-icon-wrap[data-color="lead"] {
+  background: #fff4e0;
+}
+.kpi-icon-wrap[data-color="opp"] {
+  background: #e8f0fe;
+}
+.kpi-icon-wrap[data-color="contrat"] {
+  background: #fdecea;
+}
+.kpi-icon-wrap[data-color="tache"] {
+  background: #e6f9f1;
+}
+.kpi-icon-wrap[data-color="cr"] {
+  background: #f5eafa;
+}
+
+.kpi-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+.kpi-valeur {
+  font-size: 34px;
+  font-weight: 800;
+  color: var(--blue-dark);
+  line-height: 1;
+}
+.kpi-label {
+  font-size: 12px;
+  color: var(--gray-text);
+  margin-top: 5px;
+}
+
+.kpi-sparkline {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+}
+.kpi-sparkline[data-color="lead"] {
+  background: linear-gradient(90deg, var(--orange), #ffd280);
+}
+.kpi-sparkline[data-color="opp"] {
+  background: linear-gradient(90deg, var(--blue-mid), #74b3f8);
+}
+.kpi-sparkline[data-color="contrat"] {
+  background: linear-gradient(90deg, var(--red), #f5a0a0);
+}
+.kpi-sparkline[data-color="tache"] {
+  background: linear-gradient(90deg, var(--green), #a0e8c0);
+}
+.kpi-sparkline[data-color="cr"] {
+  background: linear-gradient(90deg, var(--purple), #c9a3dd);
+}

@@ -42,6 +42,10 @@ private class AccueilControllerTest {
     System.assert(kpi.containsKey('contrats'), 'Clé contrats manquante');
     System.assert(kpi.containsKey('taches'), 'Clé taches manquante');
     System.assert(
+      kpi.containsKey('comptesRendus'),
+      'Clé comptesRendus manquante'
+    );
+    System.assert(
       kpi.get('opportunites') >= 1,
       'Doit compter au moins l\'opportunité créée'
     );
@@ -69,6 +73,81 @@ private class AccueilControllerTest {
     System.assert(
       hasOpp,
       'L\'activité récente doit inclure au moins une Opportunité'
+    );
+  }
+
+  // Le Contract ne peut pas être inséré directement en Activated : Draft puis update.
+  private static Contract creerContratActifPourCompte(Id accountId) {
+    Contract c = new Contract(
+      AccountId = accountId,
+      StartDate = Date.today().addMonths(-1),
+      ContractTerm = 12
+    );
+    insert c;
+    c.Status = 'Activated';
+    update c;
+    return c;
+  }
+
+  @isTest
+  static void testGetMesAlertes_retourneAlerteSurMonCompte() {
+    Account a = new Account(Name = 'Compte Alerte Test');
+    insert a;
+    Contract c = creerContratActifPourCompte(a.Id);
+    insert new Alert__c(
+      Contract__c = c.Id,
+      Type_Alerte__c = 'Surfacturation',
+      Statut__c = 'Nouvelle',
+      Date_Alerte__c = Date.today(),
+      Message__c = 'Surfacturation détectée'
+    );
+
+    Test.startTest();
+    List<Map<String, String>> alertes = AccueilController.getMesAlertes();
+    Test.stopTest();
+
+    System.assertNotEquals(null, alertes);
+    System.assertEquals(1, alertes.size(), 'Une alerte doit être retournée');
+    System.assertEquals('Surfacturation', alertes[0].get('type'));
+    System.assertEquals('Compte Alerte Test', alertes[0].get('compte'));
+  }
+
+  @isTest
+  static void testGetOpportunitesUpsell_retourneOpportuniteSurCompteSousContrat() {
+    Account a = new Account(Name = 'Compte Upsell Test');
+    insert a;
+    creerContratActifPourCompte(a.Id);
+    Opportunity oppSousContrat = new Opportunity(
+      Name = 'Opp Upsell Test',
+      StageName = 'Negotiation',
+      CloseDate = Date.today().addDays(15),
+      AccountId = a.Id
+    );
+    insert oppSousContrat;
+
+    Test.startTest();
+    List<Map<String, String>> opps = AccueilController.getOpportunitesUpsell();
+    Test.stopTest();
+
+    System.assertNotEquals(null, opps);
+    Boolean trouvee = false;
+    Boolean oppSansContratPresente = false;
+    for (Map<String, String> m : opps) {
+      if (oppSousContrat.Id == (Id) m.get('id')) {
+        trouvee = true;
+        System.assertEquals('Compte Upsell Test', m.get('compte'));
+      }
+      if ('Opp AccueilTest'.equals(m.get('nom'))) {
+        oppSansContratPresente = true;
+      }
+    }
+    System.assert(
+      trouvee,
+      'L\'opportunité sur le compte sous contrat actif doit être retournée'
+    );
+    System.assert(
+      !oppSansContratPresente,
+      'Une opportunité sur un compte sans contrat actif ne doit pas apparaître'
     );
   }
 

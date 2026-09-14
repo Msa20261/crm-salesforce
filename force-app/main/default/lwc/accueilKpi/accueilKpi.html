@@ -1,0 +1,39 @@
+<template>
+  <div class="kpi-container">
+    <c-kpi-card
+      label="Leads ce mois"
+      value={kpi.leads}
+      icon-name="standard:lead"
+      color-key="lead"
+      onclick={naviguerLeads}
+    ></c-kpi-card>
+    <c-kpi-card
+      label="Opportunités ouvertes"
+      value={kpi.opportunites}
+      icon-name="standard:opportunity"
+      color-key="opp"
+      onclick={naviguerOpportunites}
+    ></c-kpi-card>
+    <c-kpi-card
+      label="Tâches du jour"
+      value={kpi.taches}
+      icon-name="standard:task"
+      color-key="tache"
+      onclick={naviguerTaches}
+    ></c-kpi-card>
+    <c-kpi-card
+      label="Comptes rendus RDV"
+      value={kpi.comptesRendus}
+      icon-name="standard:note"
+      color-key="cr"
+      onclick={naviguerComptesRendus}
+    ></c-kpi-card>
+    <c-kpi-card
+      label="Contrats actifs"
+      value={kpi.contrats}
+      icon-name="standard:contract"
+      color-key="contrat"
+      onclick={naviguerContrats}
+    ></c-kpi-card>
+  </div>
+</template>
