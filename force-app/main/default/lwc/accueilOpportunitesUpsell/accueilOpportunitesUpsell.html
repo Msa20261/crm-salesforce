@@ -1,41 +1,21 @@
 <template>
-  <div class="widget-card">
-    <div class="widget-header">
-      <lightning-icon
-        icon-name="standard:opportunity"
-        size="x-small"
-      ></lightning-icon>
-      <span>Opportunités sur comptes sous contrat actif</span>
-    </div>
-    <template if:true={erreur}>
-      <p class="widget-error">
-        Impossible de charger les opportunités. Réessayez plus tard.
-      </p>
+  <c-widget-card
+    title="Opportunités sur comptes sous contrat actif"
+    icon-name="standard:opportunity"
+    erreur={erreur}
+    erreur-message="Impossible de charger les opportunités. Réessayez plus tard."
+    vide={estVide}
+    vide-message="Aucune opportunité ouverte sur un compte sous contrat actif."
+  >
+    <template for:each={opportunitesAffichees} for:item="opp">
+      <c-widget-item
+        key={opp.id}
+        data-id={opp.id}
+        title={opp.nom}
+        meta={opp.meta}
+        trailing={opp.trailing}
+        onclick={naviguerOpportunite}
+      ></c-widget-item>
     </template>
-    <template if:false={erreur}>
-      <template if:true={opportunites.length}>
-        <ul class="widget-list">
-          <template for:each={opportunites} for:item="opp">
-            <li
-              key={opp.id}
-              class="widget-item"
-              data-id={opp.id}
-              onclick={naviguerOpportunite}
-            >
-              <div class="widget-item-body">
-                <span class="widget-item-titre">{opp.nom}</span>
-                <span class="widget-item-meta">{opp.compte} · {opp.stage}</span>
-              </div>
-              <span class="widget-item-montant">{opp.montant} €</span>
-            </li>
-          </template>
-        </ul>
-      </template>
-      <template if:false={opportunites.length}>
-        <p class="widget-empty">
-          Aucune opportunité ouverte sur un compte sous contrat actif.
-        </p>
-      </template>
-    </template>
-  </div>
+  </c-widget-card>
 </template>

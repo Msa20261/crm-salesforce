@@ -1,0 +1,21 @@
+<template>
+  <div class="widget-card">
+    <div class="widget-header">
+      <lightning-icon icon-name={iconName} size="x-small"></lightning-icon>
+      <span>{title}</span>
+    </div>
+    <template if:true={erreur}>
+      <p class="widget-error">{erreurMessage}</p>
+    </template>
+    <template if:false={erreur}>
+      <template if:true={vide}>
+        <p class="widget-empty">{videMessage}</p>
+      </template>
+      <template if:false={vide}>
+        <ul class="widget-list">
+          <slot></slot>
+        </ul>
+      </template>
+    </template>
+  </div>
+</template>

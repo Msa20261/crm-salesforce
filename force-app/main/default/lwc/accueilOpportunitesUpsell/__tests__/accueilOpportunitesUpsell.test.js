@@ -24,14 +24,15 @@ describe("c-accueil-opportunites-upsell", () => {
     }
   });
 
-  it("affiche le message par défaut quand aucune opportunité", () => {
+  it("indique au widget-card qu'il n'y a aucune opportunité", () => {
     const element = createElement("c-accueil-opportunites-upsell", {
       is: AccueilOpportunitesUpsell
     });
     document.body.appendChild(element);
 
-    const vide = element.shadowRoot.querySelector(".widget-empty");
-    expect(vide).not.toBeNull();
+    const carte = element.shadowRoot.querySelector("c-widget-card");
+    expect(carte.vide).toBe(true);
+    expect(carte.erreur).toBe(false);
   });
 
   it("affiche les opportunités quand le wire retourne des données", async () => {
@@ -43,11 +44,16 @@ describe("c-accueil-opportunites-upsell", () => {
     getOpportunitesUpsellAdapter.emit(MOCK_OPPORTUNITES);
     await Promise.resolve();
 
-    const items = element.shadowRoot.querySelectorAll(".widget-item");
+    const carte = element.shadowRoot.querySelector("c-widget-card");
+    const items = element.shadowRoot.querySelectorAll("c-widget-item");
+    expect(carte.vide).toBe(false);
     expect(items.length).toBe(1);
+    expect(items[0].title).toBe("Upsell Acme");
+    expect(items[0].meta).toBe("Acme Corp · Negotiation");
+    expect(items[0].trailing).toBe("5000 €");
   });
 
-  it("affiche un message d'erreur si le wire échoue", async () => {
+  it("indique au widget-card une erreur si le wire échoue", async () => {
     const element = createElement("c-accueil-opportunites-upsell", {
       is: AccueilOpportunitesUpsell
     });
@@ -56,7 +62,7 @@ describe("c-accueil-opportunites-upsell", () => {
     getOpportunitesUpsellAdapter.error({ message: "Erreur serveur" });
     await Promise.resolve();
 
-    const erreur = element.shadowRoot.querySelector(".widget-error");
-    expect(erreur).not.toBeNull();
+    const carte = element.shadowRoot.querySelector("c-widget-card");
+    expect(carte.erreur).toBe(true);
   });
 });

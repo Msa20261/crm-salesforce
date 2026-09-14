@@ -18,6 +18,10 @@ export default class AccueilAlertes extends NavigationMixin(LightningElement) {
     }
   }
 
+  get estVide() {
+    return this.alertes.length === 0;
+  }
+
   naviguerAlerte(event) {
     const recordId = event.currentTarget.dataset.id;
     this[NavigationMixin.Navigate]({

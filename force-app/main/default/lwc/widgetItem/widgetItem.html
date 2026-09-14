@@ -1,0 +1,21 @@
+<template>
+  <div class="widget-item">
+    <template if:true={badge}>
+      <div class="widget-badge">{badge}</div>
+    </template>
+    <div class="widget-item-body">
+      <span class="widget-item-titre">{title}</span>
+      <span class="widget-item-meta">{meta}</span>
+    </div>
+    <template if:true={trailing}>
+      <span class="widget-item-montant">{trailing}</span>
+    </template>
+    <template if:false={trailing}>
+      <lightning-icon
+        icon-name="utility:chevronright"
+        size="x-small"
+        class="widget-item-arrow"
+      ></lightning-icon>
+    </template>
+  </div>
+</template>

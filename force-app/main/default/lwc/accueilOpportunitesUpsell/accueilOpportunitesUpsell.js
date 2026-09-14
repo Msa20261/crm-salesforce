@@ -20,6 +20,19 @@ export default class AccueilOpportunitesUpsell extends NavigationMixin(
     }
   }
 
+  get estVide() {
+    return this.opportunites.length === 0;
+  }
+
+  get opportunitesAffichees() {
+    return this.opportunites.map((o) => ({
+      id: o.id,
+      nom: o.nom,
+      meta: `${o.compte} · ${o.stage}`,
+      trailing: `${o.montant} €`
+    }));
+  }
+
   naviguerOpportunite(event) {
     const recordId = event.currentTarget.dataset.id;
     this[NavigationMixin.Navigate]({

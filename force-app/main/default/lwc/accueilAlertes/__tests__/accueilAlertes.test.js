@@ -22,14 +22,15 @@ describe("c-accueil-alertes", () => {
     }
   });
 
-  it("affiche le message par défaut quand aucune alerte", () => {
+  it("indique au widget-card qu'il n'y a aucune alerte", () => {
     const element = createElement("c-accueil-alertes", {
       is: AccueilAlertes
     });
     document.body.appendChild(element);
 
-    const vide = element.shadowRoot.querySelector(".widget-empty");
-    expect(vide).not.toBeNull();
+    const carte = element.shadowRoot.querySelector("c-widget-card");
+    expect(carte.vide).toBe(true);
+    expect(carte.erreur).toBe(false);
   });
 
   it("affiche les alertes quand le wire retourne des données", async () => {
@@ -41,11 +42,16 @@ describe("c-accueil-alertes", () => {
     getMesAlertesAdapter.emit(MOCK_ALERTES);
     await Promise.resolve();
 
-    const items = element.shadowRoot.querySelectorAll(".widget-item");
+    const carte = element.shadowRoot.querySelector("c-widget-card");
+    const items = element.shadowRoot.querySelectorAll("c-widget-item");
+    expect(carte.vide).toBe(false);
     expect(items.length).toBe(1);
+    expect(items[0].title).toBe("Acme Corp");
+    expect(items[0].meta).toBe("Surfacturation détectée");
+    expect(items[0].badge).toBe("Surfacturation");
   });
 
-  it("affiche un message d'erreur si le wire échoue", async () => {
+  it("indique au widget-card une erreur si le wire échoue", async () => {
     const element = createElement("c-accueil-alertes", {
       is: AccueilAlertes
     });
@@ -54,7 +60,7 @@ describe("c-accueil-alertes", () => {
     getMesAlertesAdapter.error({ message: "Erreur serveur" });
     await Promise.resolve();
 
-    const erreur = element.shadowRoot.querySelector(".widget-error");
-    expect(erreur).not.toBeNull();
+    const carte = element.shadowRoot.querySelector("c-widget-card");
+    expect(carte.erreur).toBe(true);
   });
 });
