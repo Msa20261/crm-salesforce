@@ -33,6 +33,10 @@
   transform: translateY(-3px);
   box-shadow: var(--shadow-md);
 }
+.kpi-card:focus-visible {
+  outline: 2px solid var(--blue-mid);
+  outline-offset: 2px;
+}
 
 .kpi-icon-wrap {
   width: 48px;

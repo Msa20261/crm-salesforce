@@ -21,6 +21,10 @@
   background: #f7f9fc;
   padding-left: 8px;
 }
+.widget-item:focus-visible {
+  outline: 2px solid var(--blue-mid);
+  outline-offset: -2px;
+}
 
 .widget-badge {
   font-size: 10px;

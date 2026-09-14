@@ -1,5 +1,11 @@
 <template>
-  <div class="widget-item">
+  <div
+    class="widget-item"
+    tabindex="0"
+    role="button"
+    aria-label={ariaLabel}
+    onkeydown={handleKeyDown}
+  >
     <template if:true={badge}>
       <div class="widget-badge">{badge}</div>
     </template>

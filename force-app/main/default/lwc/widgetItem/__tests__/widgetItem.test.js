@@ -66,4 +66,32 @@ describe("c-widget-item", () => {
 
     expect(handler).toHaveBeenCalledTimes(1);
   });
+
+  it("est accessible au clavier (tabindex, role, aria-label)", () => {
+    const element = createElement("c-widget-item", { is: WidgetItem });
+    element.title = "Acme Corp";
+    element.meta = "Surfacturation détectée";
+    document.body.appendChild(element);
+
+    const item = element.shadowRoot.querySelector(".widget-item");
+    expect(item.getAttribute("tabindex")).toBe("0");
+    expect(item.getAttribute("role")).toBe("button");
+    expect(item.getAttribute("aria-label")).toBe(
+      "Acme Corp - Surfacturation détectée"
+    );
+  });
+
+  it("déclenche le clic sur Entrée et sur Espace", () => {
+    const element = createElement("c-widget-item", { is: WidgetItem });
+    document.body.appendChild(element);
+
+    const handler = jest.fn();
+    element.addEventListener("click", handler);
+    const item = element.shadowRoot.querySelector(".widget-item");
+
+    item.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
+    item.dispatchEvent(new KeyboardEvent("keydown", { key: " " }));
+
+    expect(handler).toHaveBeenCalledTimes(2);
+  });
 });

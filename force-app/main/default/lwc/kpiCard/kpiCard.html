@@ -1,5 +1,12 @@
 <template>
-  <div class="kpi-card" data-color={colorKey}>
+  <div
+    class="kpi-card"
+    data-color={colorKey}
+    tabindex="0"
+    role="button"
+    aria-label={ariaLabel}
+    onkeydown={handleKeyDown}
+  >
     <div class="kpi-icon-wrap" data-color={colorKey}>
       <lightning-icon icon-name={iconName} size="small"></lightning-icon>
     </div>

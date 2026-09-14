@@ -32,4 +32,30 @@ describe("c-kpi-card", () => {
 
     expect(handler).toHaveBeenCalledTimes(1);
   });
+
+  it("est accessible au clavier (tabindex, role, aria-label)", () => {
+    const element = createElement("c-kpi-card", { is: KpiCard });
+    element.label = "Leads ce mois";
+    element.value = 12;
+    document.body.appendChild(element);
+
+    const carte = element.shadowRoot.querySelector(".kpi-card");
+    expect(carte.getAttribute("tabindex")).toBe("0");
+    expect(carte.getAttribute("role")).toBe("button");
+    expect(carte.getAttribute("aria-label")).toBe("Leads ce mois : 12");
+  });
+
+  it("déclenche le clic sur Entrée et sur Espace", () => {
+    const element = createElement("c-kpi-card", { is: KpiCard });
+    document.body.appendChild(element);
+
+    const handler = jest.fn();
+    element.addEventListener("click", handler);
+    const carte = element.shadowRoot.querySelector(".kpi-card");
+
+    carte.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
+    carte.dispatchEvent(new KeyboardEvent("keydown", { key: " " }));
+
+    expect(handler).toHaveBeenCalledTimes(2);
+  });
 });
