@@ -1,0 +1,18 @@
+<template>
+  <div class="score-card">
+    <template if:true={erreur}>
+      <p class="score-error">Impossible de charger le score.</p>
+    </template>
+    <template if:false={erreur}>
+      <template if:true={scoreDisponible}>
+        <div class="score-circle" data-niveau={niveau}>
+          <span class="score-valeur">{score}</span>
+        </div>
+        <span class="score-label">{labelNiveau}</span>
+      </template>
+      <template if:false={scoreDisponible}>
+        <p class="score-empty">Score non disponible pour ce lead.</p>
+      </template>
+    </template>
+  </div>
+</template>

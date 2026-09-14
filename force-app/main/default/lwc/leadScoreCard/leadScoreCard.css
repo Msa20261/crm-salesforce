@@ -1,0 +1,58 @@
+:host {
+  --blue-dark: #032d60;
+  --gray-text: #6b7a99;
+  --green: #4bca81;
+  --orange: #f4a623;
+  --red: #e45b5b;
+  --gray-border: #e5eaf0;
+  --white: #ffffff;
+}
+
+.score-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  background: var(--white);
+  border: 1px solid var(--gray-border);
+  border-radius: 12px;
+  font-family: "Salesforce Sans", Arial, sans-serif;
+}
+
+.score-circle {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--white);
+}
+.score-circle[data-niveau="eleve"] {
+  background: var(--green);
+}
+.score-circle[data-niveau="moyen"] {
+  background: var(--orange);
+}
+.score-circle[data-niveau="faible"] {
+  background: var(--red);
+}
+
+.score-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--blue-dark);
+}
+
+.score-empty,
+.score-error {
+  font-size: 13px;
+  color: var(--gray-text);
+  margin: 0;
+}
+.score-error {
+  color: var(--red);
+}

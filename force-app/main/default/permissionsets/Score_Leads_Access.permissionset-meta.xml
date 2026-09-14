@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description
+  >Acces en lecture/ecriture aux champs du scoring maison des Leads (Score__c, Derniere_Maj_Metier__c).</description>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Lead.Score__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Lead.Derniere_Maj_Metier__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <hasActivationRequired>false</hasActivationRequired>
+    <label>Score Leads - Acces</label>
+</PermissionSet>
